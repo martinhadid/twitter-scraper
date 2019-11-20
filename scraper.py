@@ -5,12 +5,12 @@ import time
 from csv import DictWriter
 import datetime
 from selenium import webdriver
+import argparse
 import db_tools
 import sqlite3
 
 CSV_HEADERS = ['tweet_id', 'date', 'username', 'tweets', 'hashtags', 'replies', 'retweets', 'likes']
 COUNTER_INDEX = {'replies': 0, 'retweets': 1, 'likes': 2}
-URL = 'https://twitter.com/hashtag/bitcoin?f=tweets&vertical=default'
 DB_PATH = 'tweets.db'
 
 
@@ -92,8 +92,28 @@ def scrape_tweets(driver):
         driver.quit()
 
 
-def scroll(driver, max_time=2):
-    driver.get(URL)
+def get_argparser():
+    parser = argparse.ArgumentParser(description='Command Configuration')
+    parser.add_argument('--word')
+    parser.add_argument('--start_date')
+    parser.add_argument('--end_date')
+    parser.add_argument('--language', choices=['en', 'it', 'es', 'fr', 'de', 'ru', 'zh'])
+
+    argparser = parser.parse_args()
+    return argparser.__dict__
+
+
+def configure_search(word, start_date, end_date, language):
+    url = 'https://twitter.com/search?q='
+    url += '{}%20'.format(word)
+    url += 'since%3A{}%20until%3A{}&'.format(start_date, end_date)
+    url += 'l={}&'.format(language)
+    url += 'src=typd'
+    return url
+
+
+def scroll(driver, url, max_time=2):
+    driver.get(url)
     start_time = time.time()  # remember when we started
     while (time.time() - start_time) < max_time:
         driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
@@ -120,8 +140,10 @@ def write_tweet_csv(tweet):
 
 
 def main():
+    args = get_argparser()
+    url = configure_search(args['word'], args['start_date'], args['end_date'], args['language'])
     driver = init_driver()
-    scroll(driver)
+    scroll(driver, url)
     write_csv_header()
     db_tools.delete_db(DB_PATH)
     db_tools.create_db_tables(DB_PATH)
