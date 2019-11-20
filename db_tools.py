@@ -1,6 +1,7 @@
 import sqlite3
 import scraper
 import os
+import user_data
 
 DB_PATH = 'tweets.db'
 
@@ -39,6 +40,12 @@ def create_db_tables(path):
                             TWEET_ID INT,
                             HASHTAG TEXT,
                             FOREIGN KEY(TWEET_ID) REFERENCES TWEETS(TWEET_ID))
+                ''')
+        cur.execute('''CREATE TABLE USERS (
+                            USER_ID TEXT,
+                            FOLLOWERS INT,
+                            FOLLOWING INT,
+                            TOTAL_TWEETS INT)
                 ''')
         con.commit()
         cur.close()
@@ -92,6 +99,22 @@ def insert_hashtags(tweet, path):
         cur.close()
 
 
+def insert_user(user, path):
+    with sqlite3.connect(path) as con:
+        cur = con.cursor()
+        cur.execute('''INSERT INTO USERS (
+                               USER_ID,
+                               FOLLOWERS,
+                               FOLLOWING,
+                               TOTAL_TWEETS) VALUES (?,?,?,?)''',
+                    [user.username,
+                     user.followers,
+                     user.following,
+                     user.total_tweets])
+        con.commit()
+        cur.close()
+
+
 def db_search(query, path):
     """Wrapper function to search tweets"""
     with sqlite3.connect(path) as con:
@@ -121,7 +144,9 @@ def get_tweet_text(tweet_id, path):
 
 def main():
     print(db_search('SELECT * FROM TWEETS ORDER BY LIKES DESC LIMIT 5', DB_PATH))
-    print(db_search('SELECT HASHTAG, COUNT(*) AS TOTAL FROM HASHTAGS GROUP BY HASHTAG ORDER BY TOTAL DESC LIMIT 10', DB_PATH))
+    print(db_search('SELECT HASHTAG, COUNT(*) AS TOTAL FROM HASHTAGS GROUP BY HASHTAG ORDER BY TOTAL DESC LIMIT 10',
+                    DB_PATH))
+    print(db_search('SELECT * FROM USERS', DB_PATH))
 
 
 if __name__ == '__main__':
