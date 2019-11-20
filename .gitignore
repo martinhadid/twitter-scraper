@@ -104,3 +104,4 @@ venv.bak/
 .mypy_cache/
 !/chromedriver.exe
 !/twitterData.csv
+!/tweets.db
