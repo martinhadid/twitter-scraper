@@ -122,9 +122,9 @@ def write_tweet_csv(tweet):
 def main():
     driver = init_driver()
     scroll(driver)
-    # write_csv_header()
-    # create_db.delete_db(DB_PATH)
-    # create_db.create_db_tables(DB_PATH)
+    write_csv_header()
+    db_tools.delete_db(DB_PATH)
+    db_tools.create_db_tables(DB_PATH)
     tweets = scrape_tweets(driver)
     tweets_added = 0
     for tweet in tweets:
