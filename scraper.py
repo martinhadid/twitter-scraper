@@ -5,22 +5,26 @@ import time
 from csv import DictWriter
 import datetime
 from selenium import webdriver
+import db_tools
+import sqlite3
 
 CSV_HEADERS = ['tweet_id', 'date', 'username', 'tweets', 'hashtags', 'replies', 'retweets', 'likes']
 COUNTER_INDEX = {'replies': 0, 'retweets': 1, 'likes': 2}
-URL = 'https://twitter.com/hashtag/bitcoin?f=live'
+URL = 'https://twitter.com/hashtag/bitcoin?f=tweets&vertical=default'
+DB_PATH = 'tweets.db'
 
 
 class Tweet:
-    def __init__(self):
-        self.tweet_id = None
-        self.date = None
-        self.username = None
-        self.text = None
-        self.hashtags = None
-        self.replies = None
-        self.retweets = None
-        self.likes = None
+    def __init__(self, tweet_id=None, date=None, username=None, text=None, hashtags=None, replies=None, retweets=None,
+                 likes=None):
+        self.tweet_id = tweet_id
+        self.date = date
+        self.username = username
+        self.text = text
+        self.hashtags = hashtags
+        self.replies = replies
+        self.retweets = retweets
+        self.likes = likes
 
     def _fetch_tweet_id(self, scrap):
         self.tweet_id = str(scrap.find('a', class_='tweet-timestamp js-permalink js-nav js-tooltip').attrs.get(
@@ -118,8 +122,19 @@ def write_tweet_csv(tweet):
 def main():
     driver = init_driver()
     scroll(driver)
-    write_csv_header()
+    # write_csv_header()
+    # create_db.delete_db(DB_PATH)
+    # create_db.create_db_tables(DB_PATH)
     tweets = scrape_tweets(driver)
+    tweets_added = 0
+    for tweet in tweets:
+        try:
+            db_tools.insert_tweet(tweet, DB_PATH)
+            db_tools.insert_hashtags(tweet, DB_PATH)
+            tweets_added += 1
+        except sqlite3.IntegrityError:
+            print('Tweet ID', tweet.tweet_id, 'exists in DB')
+    print('A total of', tweets_added, 'were added to DB.')
     time.sleep(5)
     print('The tweets are ready!')
     driver.quit()
