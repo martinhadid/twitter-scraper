@@ -94,10 +94,10 @@ def scrape_tweets(driver):
 
 def get_argparser():
     parser = argparse.ArgumentParser(description='Command Configuration')
-    parser.add_argument('--word')
-    parser.add_argument('--start_date')
-    parser.add_argument('--end_date')
-    parser.add_argument('--language', choices=['en', 'it', 'es', 'fr', 'de', 'ru', 'zh'])
+    parser.add_argument('--word', nargs='?', default='bitcoin')
+    parser.add_argument('--start_date', nargs='?', default='2019-10-21')
+    parser.add_argument('--end_date', nargs='?', default='2019-10-31')
+    parser.add_argument('--language', nargs='?', choices=['en', 'it', 'es', 'fr', 'de', 'ru', 'zh'], default='en')
 
     argparser = parser.parse_args()
     return argparser.__dict__
