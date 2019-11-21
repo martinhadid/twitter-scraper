@@ -142,6 +142,29 @@ def get_tweet_text(tweet_id, path):
     return result[0][0]
 
 
+def write_tweets(tweets, db=DB_PATH):
+    tweets_added = 0
+    for tweet in tweets:
+        try:
+            insert_tweet(tweet, db)
+            insert_hashtags(tweet, db)
+            tweets_added += 1
+        except sqlite3.IntegrityError:
+            print('Tweet ID', tweet.tweet_id, 'exists in DB')
+    return tweets_added
+
+
+def write_users(users, db=DB_PATH):
+    users_added = 0
+    for user in users:
+        try:
+            insert_user(user, db)
+            users_added += 1
+        except sqlite3.IntegrityError:
+            print('USER', user.username, 'exists in DB')
+    return users_added
+
+
 def main():
     print(db_search('SELECT * FROM TWEETS ORDER BY LIKES DESC LIMIT 5', DB_PATH))
     print(db_search('SELECT HASHTAG, COUNT(*) AS TOTAL FROM HASHTAGS GROUP BY HASHTAG ORDER BY TOTAL DESC LIMIT 10',

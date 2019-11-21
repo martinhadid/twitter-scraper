@@ -6,11 +6,12 @@ from csv import DictWriter
 from selenium import webdriver
 import argparse
 import db_tools
-import sqlite3
 from tweet import Tweet
+from user_data import User
 
 DB_PATH = 'tweets.db'
 CSV_HEADERS = ['tweet_id', 'date', 'username', 'tweets', 'hashtags', 'replies', 'retweets', 'likes']
+TWITTER_BASE_URL = 'http://www.twitter.com/'
 
 
 def init_driver():
@@ -29,14 +30,38 @@ def scrape_tweets(driver):
         # print(all_tweets)
         for tweet_html in all_tweets:
             tweet = Tweet()
-            tweet.enrich_tweet(tweet_html)
-            write_tweet_csv(tweet)
-            tweets.append(tweet)
+            try:
+                tweet.enrich_tweet(tweet_html)
+                write_tweet_csv(tweet)
+                tweets.append(tweet)
+            except IndexError:
+                print('Not a tweet')
         return tweets
     except Exception as e:
         print('Something went wrong!')
         print(e)
         driver.quit()
+
+
+def scrape_user(driver, username):
+    try:
+        user_divs = driver.page_source
+        soup = BeautifulSoup(user_divs, 'html.parser')
+        user = User(username)
+        user.enrich_user(soup)
+        return user
+    except IndexError as e:
+        print('Something went wrong!')
+        print(e)
+        driver.quit()
+
+
+def get_users(tweets):
+    users = []
+    for tweet in tweets:
+        if tweet.username not in users:
+            users.append(tweet.username)
+    return users
 
 
 def get_argparser():
@@ -86,6 +111,10 @@ def write_tweet_csv(tweet):
                          'likes': tweet.likes})
 
 
+def user_url(user):
+    return TWITTER_BASE_URL + user
+
+
 def main():
     args = get_argparser()
     url = configure_search(args['word'], args['start_date'], args['end_date'], args['language'])
@@ -95,15 +124,18 @@ def main():
     db_tools.delete_db(DB_PATH)
     db_tools.create_db_tables(DB_PATH)
     tweets = scrape_tweets(driver)
-    tweets_added = 0
-    for tweet in tweets:
-        try:
-            db_tools.insert_tweet(tweet, DB_PATH)
-            db_tools.insert_hashtags(tweet, DB_PATH)
-            tweets_added += 1
-        except sqlite3.IntegrityError:
-            print('Tweet ID', tweet.tweet_id, 'exists in DB')
+    usernames = get_users(tweets)
+    users = []
+    for username in usernames:
+        url = user_url(username)
+        scroll(driver, url, .5)
+        users.append(scrape_user(driver, username))
+        tweets += scrape_tweets(driver)
+
+    tweets_added = db_tools.write_tweets(tweets, DB_PATH)
     print('A total of', tweets_added, 'were added to DB.')
+    users_added = db_tools.write_users(users, DB_PATH)
+    print('A total of', users_added, 'users were added to DB.')
     time.sleep(5)
     print('The tweets are ready!')
     driver.quit()
