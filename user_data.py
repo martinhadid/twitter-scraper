@@ -58,7 +58,7 @@ def scrape_user(driver, username):
     except IndexError as e:
         print('Something went wrong!')
         print(e)
-        # driver.quit()
+        driver.quit()
 
 
 def main():
@@ -70,6 +70,7 @@ def main():
         url = 'http://www.twitter.com/' + user
         scroll(driver, url, 1)
         scrape_user(driver, user)
+    driver.quit()
 
 
 if __name__ == '__main__':
