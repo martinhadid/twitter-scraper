@@ -2,6 +2,8 @@ import sqlite3
 import scraper
 import os
 import user_data
+import tweet
+from datetime import datetime
 
 DB_PATH = 'tweets.db'
 
@@ -35,7 +37,10 @@ def create_db_tables(path):
                             TIMESTAMP INT,
                             REPLIES INT,
                             RETWEETS INT,
-                            LIKES INT)''')
+                            LIKES INT,
+                            LAST_UPD_DATE INT,
+                            FOREIGN KEY (USER_CD) REFERENCES USERS(USER_ID))
+                ''')
         cur.execute('''CREATE TABLE HASHTAGS (
                             TWEET_ID INT,
                             HASHTAG TEXT,
@@ -45,15 +50,36 @@ def create_db_tables(path):
                             USER_ID TEXT,
                             FOLLOWERS INT,
                             FOLLOWING INT,
-                            TOTAL_TWEETS INT)
+                            TOTAL_TWEETS INT,
+                            LAST_UPD_DATE INT,
+                            PRIMARY KEY(USER_ID))
+                ''')
+        cur.execute('''CREATE TABLE USERS_HIST (
+                            USER_ID TEXT,
+                            FOLLOWERS INT,
+                            FOLLOWING INT,
+                            TOTAL_TWEETS INT,
+                            AS_OF_DATE INT,
+                            PRIMARY KEY (USER_ID,AS_OF_DATE),
+                            FOREIGN KEY (USER_ID) REFERENCES USERS(USER_ID))
+                ''')
+        cur.execute('''CREATE TABLE TWEETS_HIST (
+                            TWEET_ID INT, 
+                            REPLIES INT,
+                            RETWEETS INT,
+                            LIKES INT,
+                            AS_OF_DATE INT,
+                            PRIMARY KEY (TWEET_ID, AS_OF_DATE),
+                            FOREIGN KEY(TWEET_ID) REFERENCES TWEETS(TWEET_ID))
                 ''')
         con.commit()
         cur.close()
 
 
-def insert_tweet(tweet, path):
+def insert_tweet(tweet, scrape_time, path):
     """
     Inserts tweets into DB
+    :param scrape_time:
     :param tweet: Tweet object to be inserted
     :param path: Path of DB
     :return:
@@ -67,14 +93,16 @@ def insert_tweet(tweet, path):
                         TIMESTAMP,
                         REPLIES,
                         RETWEETS,
-                        LIKES) VALUES (?,?,?,?,?,?,?)''',
+                        LIKES,
+                        LAST_UPD_DATE) VALUES (?,?,?,?,?,?,?,?)''',
                     [tweet.tweet_id,
                      tweet.username,
                      tweet.text,
                      tweet.date,
                      tweet.replies,
                      tweet.retweets,
-                     tweet.likes])
+                     tweet.likes,
+                     scrape_time])
         con.commit()
         cur.close()
 
@@ -99,18 +127,120 @@ def insert_hashtags(tweet, path):
         cur.close()
 
 
-def insert_user(user, path):
+def insert_user(user, scrape_time, path):
     with sqlite3.connect(path) as con:
         cur = con.cursor()
         cur.execute('''INSERT INTO USERS (
                                USER_ID,
                                FOLLOWERS,
                                FOLLOWING,
-                               TOTAL_TWEETS) VALUES (?,?,?,?)''',
+                               TOTAL_TWEETS,
+                               LAST_UPD_DATE) VALUES (?,?,?,?,?)''',
                     [user.username,
                      user.followers,
                      user.following,
-                     user.total_tweets])
+                     user.total_tweets,
+                     scrape_time])
+        con.commit()
+        cur.close()
+
+
+def tweet_exists(tweet, path):
+    with sqlite3.connect(path) as con:
+        cur = con.cursor()
+        cur.execute('''SELECT 1, TWEET_ID FROM TWEETS WHERE TWEET_ID = ?''',
+                    [tweet.tweet_id])
+        result = cur.fetchall()
+        if not result:
+            return False
+        elif result[0][1] == tweet.tweet_id:
+            return True
+        else:
+            return False
+
+
+def user_exists(user, path):
+    with sqlite3.connect(path) as con:
+        cur = con.cursor()
+        cur.execute('''SELECT 1, USER_ID FROM USERS WHERE USER_ID = ?''',
+                    [user.username])
+        result = cur.fetchall()
+        if not result:
+            return False
+        elif result[0][1] == user.username:
+            return True
+        else:
+            return False
+
+
+def write_tweet_hist(tweet, path):
+    with sqlite3.connect(path) as con:
+        cur = con.cursor()
+        cur.execute('''INSERT INTO TWEETS_HIST (
+                        TWEET_ID,
+                        REPLIES,
+                        RETWEETS,
+                        LIKES,
+                        AS_OF_DATE)  
+                        SELECT TWEET_ID, REPLIES, RETWEETS, LIKES, LAST_UPD_DATE
+                        FROM TWEETS
+                        WHERE TWEET_ID = ?
+                        ''',
+                    [tweet.tweet_id])
+        con.commit()
+        cur.close()
+
+
+def write_user_hist(user, path):
+    with sqlite3.connect(path) as con:
+        cur = con.cursor()
+        cur.execute('''INSERT INTO USERS_HIST (
+                        USER_ID,
+                        FOLLOWING,
+                        FOLLOWERS,
+                        TOTAL_TWEETS,
+                        AS_OF_DATE)  
+                        SELECT USER_ID, FOLLOWING, FOLLOWERS, TOTAL_TWEETS, LAST_UPD_DATE
+                        FROM USERS
+                        WHERE USER_ID = ?
+                        ''',
+                    [user.username])
+        con.commit()
+        cur.close()
+
+
+def update_tweet(tweet, scrap_time, path):
+    with sqlite3.connect(path) as con:
+        cur = con.cursor()
+        cur.execute('''UPDATE TWEETS 
+                        SET REPLIES = ?,
+                        RETWEETS = ? ,
+                        LIKES = ?,
+                        LAST_UPD_DATE = ?
+                        WHERE TWEET_ID = ?''',
+                    [tweet.replies,
+                     tweet.retweets,
+                     tweet.likes,
+                     scrap_time,
+                     tweet.tweet_id])
+        con.commit()
+        cur.close()
+
+
+def update_user(user, scrap_time, path):
+    with sqlite3.connect(path) as con:
+        cur = con.cursor()
+        cur.execute('''UPDATE USERS 
+                        SET FOLLOWING = ?,
+                        FOLLOWERS = ? ,
+                        TOTAL_TWEETS = ?,
+                        LAST_UPD_DATE = ?
+                        WHERE USER_ID = ?''',
+                    [user.following,
+                     user.followers,
+                     user.total_tweets,
+                     scrap_time,
+                     user.username])
         con.commit()
         cur.close()
 
@@ -142,11 +272,11 @@ def get_tweet_text(tweet_id, path):
     return result[0][0]
 
 
-def write_tweets(tweets, db=DB_PATH):
+def write_tweets(tweets, scrap_time, db=DB_PATH):
     tweets_added = 0
     for tweet in tweets:
         try:
-            insert_tweet(tweet, db)
+            insert_tweet(tweet, scrap_time, db)
             insert_hashtags(tweet, db)
             tweets_added += 1
         except sqlite3.IntegrityError:
@@ -154,11 +284,11 @@ def write_tweets(tweets, db=DB_PATH):
     return tweets_added
 
 
-def write_users(users, db=DB_PATH):
+def write_users(users, scrape_time, db=DB_PATH):
     users_added = 0
     for user in users:
         try:
-            insert_user(user, db)
+            insert_user(user, scrape_time, db)
             users_added += 1
         except sqlite3.IntegrityError:
             print('USER', user.username, 'exists in DB')
@@ -166,10 +296,12 @@ def write_users(users, db=DB_PATH):
 
 
 def main():
-    print(db_search('SELECT * FROM TWEETS ORDER BY LIKES DESC LIMIT 5', DB_PATH))
-    print(db_search('SELECT HASHTAG, COUNT(*) AS TOTAL FROM HASHTAGS GROUP BY HASHTAG ORDER BY TOTAL DESC LIMIT 10',
-                    DB_PATH))
     print(db_search('SELECT * FROM USERS', DB_PATH))
+    print(user_exists(user_data.User('@BKBrianKelly'), DB_PATH))
+    write_user_hist(user_data.User('@BKBrianKelly'), DB_PATH)
+    update_user(user_data.User('@BKBrianKelly', 13, 14, 15), datetime.timestamp(datetime.now()), DB_PATH)
+    print(db_search('SELECT * FROM USERS', DB_PATH))
+    print(db_search('select * from users_hist', DB_PATH))
 
 
 if __name__ == '__main__':
