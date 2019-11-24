@@ -53,11 +53,3 @@ class Tweet:
         self._fetch_date(scrap, True)
         self._fetch_username(scrap)
         self._fetch_tweet_id(scrap)
-
-
-def main():
-    tweet = Tweet()
-
-
-if __name__ == '__main__':
-    main()
