@@ -11,9 +11,12 @@ class User:
         for stat in all_stats:
             if 'data-count' in stat.find('span', class_="ProfileNav-value").attrs:
                 stats_dict[stat.attrs['data-nav']] = stat.find('span', class_="ProfileNav-value").attrs['data-count']
-        self.followers = stats_dict['followers']
-        self.following = stats_dict['following']
-        self.total_tweets = stats_dict['tweets']
+        if 'followers' in stats_dict:
+            self.followers = stats_dict['followers']
+        if 'following' in stats_dict:
+            self.following = stats_dict['following']
+        if 'tweets' in stats_dict:
+            self.total_tweets = stats_dict['tweets']
 
     def enrich_user(self, scrap):
         self._fetch_stats(scrap)
