@@ -1,9 +1,8 @@
 #!usr/bin/python3
-import os
+from driver import Driver
 from bs4 import BeautifulSoup
 import time
 from csv import DictWriter
-from selenium import webdriver
 import argparse
 import db_tools
 from tweet import Tweet
@@ -12,13 +11,6 @@ from user_data import User
 DB_PATH = 'tweets.db'
 CSV_HEADERS = ['tweet_id', 'date', 'username', 'tweets', 'hashtags', 'replies', 'retweets', 'likes']
 TWITTER_BASE_URL = 'http://www.twitter.com/'
-
-
-def init_driver():
-    directory = os.path.dirname(__file__)
-    chrome_driver_path = directory + '/chromedriver'
-    driver = webdriver.Chrome(chrome_driver_path)
-    return driver
 
 
 def scrape_tweets(driver):
@@ -118,7 +110,7 @@ def user_url(user):
 def main():
     args = get_argparser()
     url = configure_search(args['word'], args['start_date'], args['end_date'], args['language'])
-    driver = init_driver()
+    driver = Driver().create()
     scroll(driver, url)
     write_csv_header()
     db_tools.delete_db(DB_PATH)
