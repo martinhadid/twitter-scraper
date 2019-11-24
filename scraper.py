@@ -20,7 +20,6 @@ def scrape_tweets(driver):
         soup = BeautifulSoup(tweet_divs, 'html.parser')
         all_tweets = soup.find_all('div', class_='content')
         tweets = []
-        # print(all_tweets)
         for tweet_html in all_tweets:
             tweet = Tweet()
             try:
@@ -79,7 +78,7 @@ def configure_search(word, start_date, end_date, language):
 
 def scroll(driver, url, max_time=2):
     driver.get(url)
-    start_time = time.time()  # remember when we started
+    start_time = time.time()
     while (time.time() - start_time) < max_time:
         driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
         print(str(time.time() - start_time) + ' < ' + str(max_time))
