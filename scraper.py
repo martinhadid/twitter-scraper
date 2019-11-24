@@ -6,7 +6,7 @@ from csv import DictWriter
 import argparse
 import db_tools
 from tweet import Tweet
-from user_data import User
+from user import User
 import datetime
 
 DB_PATH = 'tweets.db'
