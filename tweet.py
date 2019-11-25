@@ -14,6 +14,7 @@ class Tweet:
         self.replies = replies
         self.retweets = retweets
         self.likes = likes
+        self._val = True
 
     def _fetch_tweet_id(self, scrap):
         """Sets tweet id from scrap"""
@@ -60,4 +61,10 @@ class Tweet:
         self._fetch_date(scrap, True)
         self._fetch_username(scrap)
         self._fetch_tweet_id(scrap)
+
+    def false_tweet(self):
+        self._val = False
+
+    def __bool__(self):
+        return self._val
 

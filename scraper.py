@@ -19,17 +19,28 @@ def get_html(driver):
     return soup
 
 
+def get_tweets_html(soup):
+    return soup.find_all('div', class_='content')
+
+
+def build_tweet(tweet_html):
+    tweet = Tweet()
+    try:
+        tweet.enrich_tweet(tweet_html)
+        write_tweet_csv(tweet)
+    except IndexError:
+        print('Not a tweet')
+        tweet.false_tweet()
+    return tweet
+
+
 def scrape_tweets(soup):
     tweets = []
-    all_tweets = soup.find_all('div', class_='content')
+    all_tweets = get_tweets_html(soup)
     for tweet_html in all_tweets:
-        tweet = Tweet()
-        try:
-            tweet.enrich_tweet(tweet_html)
-            write_tweet_csv(tweet)
+        tweet = build_tweet(tweet_html)
+        if tweet:
             tweets.append(tweet)
-        except IndexError:
-            print('Not a tweet')
     return tweets
 
 
@@ -111,25 +122,26 @@ def main():
         print('Something went wrong!')
         print(e)
         driver.quit()
-    users = []
-    print('The number of unique usernames gathered is:', len(usernames))
-    i = 0
-    for username in usernames[:1]:
-        print('**********\nWere at user', i, 'out of', len(usernames), '\n******')
-        url = user_url(username)
-        driver.scroll(url, .5)
-        users.append(scrape_user(get_html(driver), username))
-        tweets += scrape_tweets(get_html(driver))
-        i += 1
+    finally:
+        users = []
+        print('The number of unique usernames gathered is:', len(usernames))
+        i = 0
+        for username in usernames[:1]:
+            print('**********\nWere at user', i, 'out of', len(usernames), '\n******')
+            url = user_url(username)
+            driver.scroll(url, .5)
+            users.append(scrape_user(get_html(driver), username))
+            tweets += scrape_tweets(get_html(driver))
+            i += 1
 
-    main_db()
-    init_time = datetime.datetime.timestamp(datetime.datetime.now())
-    tweets_added = db_tools.write_tweets(tweets, init_time, DB_PATH)
-    print('A total of', tweets_added, 'were added to DB.')
-    users_added = db_tools.write_users(users, init_time, DB_PATH)
-    print('A total of', users_added, 'users were added to DB.')
-    print('The tweets are ready!')
-    driver.quit()
+        main_db()
+        init_time = datetime.datetime.timestamp(datetime.datetime.now())
+        tweets_added = db_tools.write_tweets(tweets, init_time, DB_PATH)
+        print('A total of', tweets_added, 'were added to DB.')
+        users_added = db_tools.write_users(users, init_time, DB_PATH)
+        print('A total of', users_added, 'users were added to DB.')
+        print('The tweets are ready!')
+        driver.quit()
 
 
 if __name__ == '__main__':
