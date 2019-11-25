@@ -11,14 +11,29 @@ import config
 
 
 def get_html(driver):
+    """
+    Extract html from the browser
+    :param driver: browser rendering engine
+    :return: html from the page source
+    """
     return BeautifulSoup(driver.get_page_source(), 'html.parser')
 
 
 def get_tweets(soup):
+    """
+    Extract tweets from twitter's feed
+    :param soup: page html source code
+    :return: list of tweets
+    """
     return soup.find_all('div', class_='content')
 
 
 def build_tweet(tweet_html):
+    """
+    Parse tweet information
+    :param tweet_html: twit source code to be parsed
+    :return: parsed tweet object
+    """
     tweet = Tweet()
     try:
         tweet.enrich_tweet(tweet_html)
@@ -30,6 +45,11 @@ def build_tweet(tweet_html):
 
 
 def scrape_tweets(all_tweets):
+    """
+    Get list of parsed tweets with relevant content
+    :param all_tweets: list of tweets
+    :return: list of tweets with relevant content
+    """
     tweets = []
     for tweet_html in all_tweets:
         tweet = build_tweet(tweet_html)
@@ -39,6 +59,11 @@ def scrape_tweets(all_tweets):
 
 
 def get_users(tweets):
+    """
+    Get list of users to be scraped
+    :param tweets: tweets with relevant content
+    :return: users to be scraped
+    """
     users = []
     for tweet in tweets:
         if tweet.username not in users:
@@ -47,12 +72,22 @@ def get_users(tweets):
 
 
 def scrape_user(html, username):
+    """
+    Get parsed info from users
+    :param html: page source for users
+    :param username:
+    :return: parsed info for the user
+    """
     user = User(username)
     user.enrich_user(html)
     return user
 
 
 def get_argparser():
+    """
+    Command line interface configuration handler
+    :return: dictionary with configuration arguments
+    """
     parser = argparse.ArgumentParser(description='Command Configuration')
     parser.add_argument('--word', default='bitcoin')
     parser.add_argument('--start_date', default='2019-10-21')
@@ -64,6 +99,14 @@ def get_argparser():
 
 
 def configure_search(word, start_date, end_date, language):
+    """
+    Prepares the url to be requested
+    :param word: word to be scraped
+    :param start_date: starting date
+    :param end_date: ending date
+    :param language: language in which tweet will be requested
+    :return: formatted url
+    """
     url = 'https://twitter.com/search?q='
     url += '{}%20'.format(word)
     url += 'since%3A{}%20until%3A{}&'.format(start_date, end_date)
@@ -73,12 +116,20 @@ def configure_search(word, start_date, end_date, language):
 
 
 def write_csv_header():
+    """
+    Writes csv columns headers
+    """
     with open('twitterData.csv', 'w+') as csv_file:
         writer = DictWriter(csv_file, fieldnames=config.scraper['csv_headers'])
         writer.writeheader()
 
 
 def write_tweet_csv(tweet):
+    """
+    Writes down the tweet info into a csv
+    :param tweet: tweet containing all the info
+    :return: csv with the data in columns
+    """
     with open('twitterData.csv', 'a+', encoding='utf-8') as csv_file:
         writer = DictWriter(csv_file, fieldnames=config.scraper['csv_headers'])
         writer.writerow({'tweet_id': tweet.tweet_id,
@@ -92,6 +143,11 @@ def write_tweet_csv(tweet):
 
 
 def user_url(user):
+    """
+    Get users page url
+    :param user: username
+    :return: users page url
+    """
     return config.scraper['twitter_url'] + user
 
 
