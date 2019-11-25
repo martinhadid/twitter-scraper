@@ -1,7 +1,7 @@
 import sqlite3
 import scraper
 import os
-import user_data
+import user
 import tweet
 from datetime import datetime
 
@@ -127,7 +127,14 @@ def insert_hashtags(tweet, path):
         cur.close()
 
 
-def insert_user(user, scrape_time, path):
+def insert_user(user, scrape_time, path=DB_PATH):
+    """
+    Inserts user into database
+    :param user: User
+    :param scrape_time: time of scrape
+    :param path: db path
+    :return:
+    """
     with sqlite3.connect(path) as con:
         cur = con.cursor()
         cur.execute('''INSERT INTO USERS (
@@ -145,7 +152,8 @@ def insert_user(user, scrape_time, path):
         cur.close()
 
 
-def tweet_exists(tweet, path):
+def tweet_exists(tweet, path=DB_PATH):
+    """Returns weather or not tweet exists"""
     with sqlite3.connect(path) as con:
         cur = con.cursor()
         cur.execute('''SELECT 1, TWEET_ID FROM TWEETS WHERE TWEET_ID = ?''',
@@ -160,6 +168,7 @@ def tweet_exists(tweet, path):
 
 
 def user_exists(user, path):
+    """Returns whether or not user exists in db"""
     with sqlite3.connect(path) as con:
         cur = con.cursor()
         cur.execute('''SELECT 1, USER_ID FROM USERS WHERE USER_ID = ?''',
@@ -174,6 +183,7 @@ def user_exists(user, path):
 
 
 def write_tweet_hist(tweet, path):
+    """Takes snapshot of tweet in TWEETS to TWEETS_HIST"""
     with sqlite3.connect(path) as con:
         cur = con.cursor()
         cur.execute('''INSERT INTO TWEETS_HIST (
@@ -192,6 +202,7 @@ def write_tweet_hist(tweet, path):
 
 
 def write_user_hist(user, path):
+    """Takes snapshot of user in USER and writes it in USERS_HIST"""
     with sqlite3.connect(path) as con:
         cur = con.cursor()
         cur.execute('''INSERT INTO USERS_HIST (
@@ -210,6 +221,7 @@ def write_user_hist(user, path):
 
 
 def update_tweet(tweet, scrap_time, path):
+    """Updates tweet statistics"""
     with sqlite3.connect(path) as con:
         cur = con.cursor()
         cur.execute('''UPDATE TWEETS 
@@ -228,6 +240,7 @@ def update_tweet(tweet, scrap_time, path):
 
 
 def update_user(user, scrap_time, path):
+    """Updates user statistics"""
     with sqlite3.connect(path) as con:
         cur = con.cursor()
         cur.execute('''UPDATE USERS 
@@ -246,7 +259,7 @@ def update_user(user, scrap_time, path):
 
 
 def db_search(query, path):
-    """Wrapper function to search tweets"""
+    """Wrapper function to query db"""
     with sqlite3.connect(path) as con:
         cur = con.cursor()
         cur.execute(query)
@@ -273,6 +286,7 @@ def get_tweet_text(tweet_id, path):
 
 
 def write_tweets(tweets, scrap_time, db=DB_PATH):
+    """Wrapper function to write multiple tweets into db"""
     tweets_added = 0
     for tweet in tweets:
         try:
@@ -285,21 +299,23 @@ def write_tweets(tweets, scrap_time, db=DB_PATH):
 
 
 def write_users(users, scrape_time, db=DB_PATH):
+    """wrapper function to write multiple users into db"""
     users_added = 0
     for user in users:
-        try:
+        if user_exists(user, db):
+            write_user_hist(user, db)
+            update_user(user, scrape_time, db)
+        else:
             insert_user(user, scrape_time, db)
             users_added += 1
-        except sqlite3.IntegrityError:
-            print('USER', user.username, 'exists in DB')
     return users_added
 
 
 def main():
     print(db_search('SELECT * FROM USERS', DB_PATH))
-    print(user_exists(user_data.User('@BKBrianKelly'), DB_PATH))
-    write_user_hist(user_data.User('@BKBrianKelly'), DB_PATH)
-    update_user(user_data.User('@BKBrianKelly', 13, 14, 15), datetime.timestamp(datetime.now()), DB_PATH)
+    # print(user_exists(user.User('@BKBrianKelly'), DB_PATH))
+    # write_user_hist(user.User('@BKBrianKelly'), DB_PATH)
+    # update_user(user.User('@BKBrianKelly', 13, 14, 15), datetime.timestamp(datetime.now()), DB_PATH)
     print(db_search('SELECT * FROM USERS', DB_PATH))
     print(db_search('select * from users_hist', DB_PATH))
 

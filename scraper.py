@@ -7,7 +7,7 @@ from selenium import webdriver
 import argparse
 import db_tools
 from tweet import Tweet
-from user_data import User
+from user import User
 import datetime
 
 DB_PATH = 'tweets.db'
@@ -123,8 +123,8 @@ def main():
     init_time = datetime.datetime.timestamp(datetime.datetime.now())
     scroll(driver, url, 5)
     write_csv_header()
-    db_tools.delete_db(DB_PATH)
-    db_tools.create_db_tables(DB_PATH)
+    # db_tools.delete_db(DB_PATH)
+    # db_tools.create_db_tables(DB_PATH)
     tweets = scrape_tweets(driver)
     usernames = get_users(tweets)
     users = []
