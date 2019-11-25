@@ -7,10 +7,7 @@ import db_tools
 from tweet import Tweet
 from user import User
 import datetime
-
-DB_PATH = 'tweets.db'
-CSV_HEADERS = ['tweet_id', 'date', 'username', 'tweets', 'hashtags', 'replies', 'retweets', 'likes']
-TWITTER_BASE_URL = 'http://www.twitter.com/'
+import config
 
 
 def get_html(driver):
@@ -77,13 +74,13 @@ def configure_search(word, start_date, end_date, language):
 
 def write_csv_header():
     with open('twitterData.csv', 'w+') as csv_file:
-        writer = DictWriter(csv_file, fieldnames=CSV_HEADERS)
+        writer = DictWriter(csv_file, fieldnames=config.scraper['csv_headers'])
         writer.writeheader()
 
 
 def write_tweet_csv(tweet):
     with open('twitterData.csv', 'a+', encoding='utf-8') as csv_file:
-        writer = DictWriter(csv_file, fieldnames=CSV_HEADERS)
+        writer = DictWriter(csv_file, fieldnames=config.scraper['csv_headers'])
         writer.writerow({'tweet_id': tweet.tweet_id,
                          'date': tweet.date,
                          'username': tweet.username,
@@ -95,12 +92,12 @@ def write_tweet_csv(tweet):
 
 
 def user_url(user):
-    return TWITTER_BASE_URL + user
+    return config.scraper['twitter_url'] + user
 
 
 def main_db():
-    db_tools.delete_db(DB_PATH)
-    db_tools.create_db_tables(DB_PATH)
+    db_tools.delete_db(config.mysql['db'])
+    db_tools.create_db_tables(config.mysql['db'])
 
 
 def main():
@@ -133,9 +130,9 @@ def main():
 
         main_db()
         init_time = datetime.datetime.timestamp(datetime.datetime.now())
-        tweets_added = db_tools.write_tweets(tweets, init_time, DB_PATH)
+        tweets_added = db_tools.write_tweets(tweets, init_time, config.mysql['db'])
         print('A total of', tweets_added, 'were added to DB.')
-        users_added = db_tools.write_users(users, init_time, DB_PATH)
+        users_added = db_tools.write_users(users, init_time, config.mysql['db'])
         print('A total of', users_added, 'users were added to DB.')
         print('The tweets are ready!')
         driver.quit()

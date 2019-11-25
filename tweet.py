@@ -1,6 +1,5 @@
 import datetime
-
-COUNTER_INDEX = {'replies': 0, 'retweets': 1, 'likes': 2}
+import config
 
 
 class Tweet:
@@ -49,9 +48,9 @@ class Tweet:
     def _fetch_counters(self, scrap):
         """Sets all counters (retweets, likes and replies) from scrap"""
         tweet_counters = scrap.find_all('span', class_='ProfileTweet-actionCountForAria')
-        self.retweets = tweet_counters[COUNTER_INDEX['retweets']].string.split(' ')[0]
-        self.likes = tweet_counters[COUNTER_INDEX['likes']].string.split(' ')[0]
-        self.replies = tweet_counters[COUNTER_INDEX['replies']].string.split(' ')[0]
+        self.retweets = tweet_counters[config.tweet['retweets']].string.split(' ')[0]
+        self.likes = tweet_counters[config.tweet['likes']].string.split(' ')[0]
+        self.replies = tweet_counters[config.tweet['replies']].string.split(' ')[0]
 
     def enrich_tweet(self, scrap):
         """Function that calls all tweet fetchers """

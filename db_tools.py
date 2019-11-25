@@ -1,11 +1,8 @@
 import sqlite3
-import scraper
 import os
 import user
-import tweet
 from datetime import datetime
-
-DB_PATH = 'tweets.db'
+import config
 
 
 def delete_db(path):
@@ -127,7 +124,7 @@ def insert_hashtags(tweet, path):
         cur.close()
 
 
-def insert_user(user, scrape_time, path=DB_PATH):
+def insert_user(user, scrape_time, path=config.mysql['db']):
     """
     Inserts user into database
     :param user: User
@@ -152,7 +149,7 @@ def insert_user(user, scrape_time, path=DB_PATH):
         cur.close()
 
 
-def tweet_exists(tweet, path=DB_PATH):
+def tweet_exists(tweet, path=config.mysql['db']):
     """Returns weather or not tweet exists"""
     with sqlite3.connect(path) as con:
         cur = con.cursor()
@@ -285,7 +282,7 @@ def get_tweet_text(tweet_id, path):
     return result[0][0]
 
 
-def write_tweets(tweets, scrap_time, db=DB_PATH):
+def write_tweets(tweets, scrap_time, db=config.mysql['db']):
     """Wrapper function to write multiple tweets into db"""
     tweets_added = 0
     for tweet in tweets:
@@ -298,7 +295,7 @@ def write_tweets(tweets, scrap_time, db=DB_PATH):
     return tweets_added
 
 
-def write_users(users, scrape_time, db=DB_PATH):
+def write_users(users, scrape_time, db=config.mysql['db']):
     """wrapper function to write multiple users into db"""
     users_added = 0
     for user in users:
@@ -312,12 +309,12 @@ def write_users(users, scrape_time, db=DB_PATH):
 
 
 def main():
-    print(db_search('SELECT * FROM USERS', DB_PATH))
-    print(user_exists(user.User('@BKBrianKelly'), DB_PATH))
-    write_user_hist(user.User('@BKBrianKelly'), DB_PATH)
-    update_user(user.User('@BKBrianKelly', 13, 14, 15), datetime.timestamp(datetime.now()), DB_PATH)
-    print(db_search('SELECT * FROM USERS', DB_PATH))
-    print(db_search('select * from users_hist', DB_PATH))
+    print(db_search('SELECT * FROM USERS', config.mysql['db']))
+    print(user_exists(user.User('@BKBrianKelly'), config.mysql['db']))
+    write_user_hist(user.User('@BKBrianKelly'), config.mysql['db'])
+    update_user(user.User('@BKBrianKelly', 13, 14, 15), datetime.timestamp(datetime.now()), config.mysql['db'])
+    print(db_search('SELECT * FROM USERS', config.mysql['db']))
+    print(db_search('select * from users_hist', config.mysql['db']))
 
 
 if __name__ == '__main__':

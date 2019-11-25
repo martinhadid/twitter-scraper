@@ -1,11 +1,12 @@
 from selenium import webdriver
 import os
 import time
+import config
 
 
 class Driver:
     def __init__(self):
-        self.driver = webdriver.Chrome(os.path.dirname(__file__) + '/chromedriver')
+        self.driver = webdriver.Chrome(os.path.dirname(__file__) + '/' + config.driver)
 
     def scroll(self, url, max_time=2):
         self.driver.get(url)
