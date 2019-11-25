@@ -313,9 +313,9 @@ def write_users(users, scrape_time, db=DB_PATH):
 
 def main():
     print(db_search('SELECT * FROM USERS', DB_PATH))
-    # print(user_exists(user.User('@BKBrianKelly'), DB_PATH))
-    # write_user_hist(user.User('@BKBrianKelly'), DB_PATH)
-    # update_user(user.User('@BKBrianKelly', 13, 14, 15), datetime.timestamp(datetime.now()), DB_PATH)
+    print(user_exists(user.User('@BKBrianKelly'), DB_PATH))
+    write_user_hist(user.User('@BKBrianKelly'), DB_PATH)
+    update_user(user.User('@BKBrianKelly', 13, 14, 15), datetime.timestamp(datetime.now()), DB_PATH)
     print(db_search('SELECT * FROM USERS', DB_PATH))
     print(db_search('select * from users_hist', DB_PATH))
 
