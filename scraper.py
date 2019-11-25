@@ -14,16 +14,17 @@ TWITTER_BASE_URL = 'http://www.twitter.com/'
 
 
 def get_html(driver):
-    page_source = driver.get_page_source()
-    soup = BeautifulSoup(page_source, 'html.parser')
-    return soup
+    return BeautifulSoup(driver.get_page_source(), 'html.parser')
 
 
-def scrape_tweets(soup):
+def get_tweets(soup):
+    return soup.find_all('div', class_='content')
+
+
+def scrape_tweets(all_tweets):
+    tweet = Tweet()
     tweets = []
-    all_tweets = soup.find_all('div', class_='content')
     for tweet_html in all_tweets:
-        tweet = Tweet()
         try:
             tweet.enrich_tweet(tweet_html)
             write_tweet_csv(tweet)
@@ -31,12 +32,6 @@ def scrape_tweets(soup):
         except IndexError:
             print('Not a tweet')
     return tweets
-
-
-def scrape_user(soup, username):
-    user = User(username)
-    user.enrich_user(soup)
-    return user
 
 
 def get_users(tweets):
@@ -47,12 +42,18 @@ def get_users(tweets):
     return users
 
 
+def scrape_user(html, username):
+    user = User(username)
+    user.enrich_user(html)
+    return user
+
+
 def get_argparser():
     parser = argparse.ArgumentParser(description='Command Configuration')
-    parser.add_argument('--word', nargs='?', default='bitcoin')
-    parser.add_argument('--start_date', nargs='?', default='2019-10-21')
-    parser.add_argument('--end_date', nargs='?', default='2019-10-31')
-    parser.add_argument('--language', nargs='?', choices=['en', 'it', 'es', 'fr', 'de', 'ru', 'zh'], default='en')
+    parser.add_argument('--word', default='bitcoin')
+    parser.add_argument('--start_date', default='2019-10-21')
+    parser.add_argument('--end_date', default='2019-10-31')
+    parser.add_argument('--language', choices=['en', 'it', 'es', 'fr', 'de', 'ru', 'zh'], default='en')
 
     argparser = parser.parse_args()
     return argparser.__dict__
@@ -105,7 +106,7 @@ def main():
     write_csv_header()
 
     try:
-        tweets = scrape_tweets(get_html(driver))
+        tweets = scrape_tweets(get_tweets(get_html(driver)))
         usernames = get_users(tweets)
     except Exception as e:
         print('Something went wrong!')
@@ -120,7 +121,7 @@ def main():
         url = user_url(username)
         driver.scroll(url, .5)
         users.append(scrape_user(get_html(driver), username))
-        tweets += scrape_tweets(get_html(driver))
+        tweets += scrape_tweets(get_tweets(get_html(driver)))
         i += 1
 
     main_db()
