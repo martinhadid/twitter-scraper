@@ -6,6 +6,7 @@ class User:
         self.total_tweets = total_tweets
 
     def _fetch_stats(self, scrap):
+        """Fetches user stats and adds these to user object."""
         all_stats = scrap.find_all('a', class_='ProfileNav-stat')
         stats_dict = {}
         for stat in all_stats:
@@ -19,4 +20,5 @@ class User:
             self.total_tweets = stats_dict['tweets']
 
     def enrich_user(self, scrap):
+        """Scraps users and enriches the object"""
         self._fetch_stats(scrap)
