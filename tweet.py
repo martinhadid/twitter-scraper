@@ -15,6 +15,9 @@ class Tweet:
         self.likes = likes
         self._val = True
 
+    def __bool__(self):
+        return self._val
+
     def __eq__(self, other):
         if self.tweet_id == other.tweet_id:
             return True
@@ -68,11 +71,11 @@ class Tweet:
         self._fetch_tweet_id(scrap)
 
     def false_tweet(self):
+        """Sets tweet object to false object"""
         self._val = False
 
     def set_internal_id(self, internal_id):
+        """Sets internal id of tweet when gathered by db."""
         self.internal_id = internal_id
 
-    def __bool__(self):
-        return self._val
 

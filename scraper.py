@@ -55,7 +55,6 @@ def scrape_tweets(all_tweets):
         tweet = build_tweet(tweet_html)
         if tweet:
             tweets.append(tweet)
-            print(tweet.username)
     return tweets
 
 
@@ -81,7 +80,6 @@ def scrape_user(html, username):
     """
     user = User(username)
     user.enrich_user(html)
-    print(user.username)
     return user
 
 
@@ -154,6 +152,7 @@ def user_url(user):
 
 
 def filter_tweets(tweets):
+    """Filters all tweets to unique tweets to avoid database conflicts."""
     final_tweets = []
     for tweet in tweets:
         if tweet not in final_tweets:
