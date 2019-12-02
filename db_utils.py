@@ -1,12 +1,6 @@
-import sqlite3
-from mysql import connector
-import os
-from tweet import Tweet
-from user import User
-import config
-import user
 from datetime import datetime
-import db_queries
+from mysql import connector
+import config
 
 
 class TweetDB:
@@ -38,7 +32,7 @@ class TweetDB:
         return result
 
     def create_db(self):
-        self.cur.execute("CREATE DATABASE IF NOT EXISTS %s DEFAULT CHARACTER SET 'utf8'" % self.database)
+        self.cur.execute("CREATE DATABASE IF NOT EXISTS %s DEFAULT CHARACTER SET 'utf8mb4'" % self.database)
 
     def user_exists(self, user):
         username = (user.username,)
