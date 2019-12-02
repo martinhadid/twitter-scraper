@@ -8,26 +8,10 @@ from user import User
 import config
 from database_manager import Database_Manager
 import db_queries
-import logging
-import os
+import logger
 import traceback
 
-WORKING_DIR = os.path.dirname(os.path.abspath(__file__))
-LOGS_DIR = os.path.join(WORKING_DIR, 'logs')
-
-logger = logging.getLogger('TwitterLogger')
-logging.getLogger('TwitterLogger').setLevel(logging.DEBUG)
-if not os.path.exists(LOGS_DIR):
-    os.mkdir(LOGS_DIR)
-fh = logging.FileHandler(os.path.join(LOGS_DIR, 'scraper_logs.log'))
-ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-ch.setFormatter(formatter)
-fh.setLevel(logging.INFO)
-fh.setFormatter(formatter)
-logger.addHandler(ch)
-logger.addHandler(fh)
+logger = logger.Logger()
 
 
 def get_html(driver):
@@ -136,9 +120,7 @@ def configure_search(word, start_date, end_date, language):
 
 
 def write_csv_header():
-    """
-    Writes csv columns headers
-    """
+    """Writes csv columns headers"""
     with open('twitterData.csv', 'w+') as csv_file:
         writer = DictWriter(csv_file, fieldnames=config.scraper['csv_headers'])
         writer.writeheader()
@@ -195,6 +177,8 @@ def main_db(db_name, tweets, users):
 
 
 def main():
+
+
     args = get_argparser()
     url = configure_search(args['word'], args['start_date'], args['end_date'], args['language'])
 
@@ -205,9 +189,8 @@ def main():
 
     try:
         tweets = scrape_tweets(get_tweets(get_html(driver)))
-    except Exception as e:
-        print('Something went wrong!')
-        print(e)
+    except Exception:
+        logger.error('Something went wrong! ' + traceback.format_exc())
         driver.quit()
     finally:
         usernames = get_users(tweets)
