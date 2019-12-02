@@ -6,8 +6,28 @@ import argparse
 from tweet import Tweet
 from user import User
 import config
-from db_utils import TweetDB
+from database_manager import Database_Manager
 import db_queries
+import logging
+import os
+import traceback
+
+WORKING_DIR = os.path.dirname(os.path.abspath(__file__))
+LOGS_DIR = os.path.join(WORKING_DIR, 'logs')
+
+logger = logging.getLogger('TwitterLogger')
+logging.getLogger('TwitterLogger').setLevel(logging.DEBUG)
+if not os.path.exists(LOGS_DIR):
+    os.mkdir(LOGS_DIR)
+fh = logging.FileHandler(os.path.join(LOGS_DIR, 'scraper_logs.log'))
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+ch.setFormatter(formatter)
+fh.setLevel(logging.INFO)
+fh.setFormatter(formatter)
+logger.addHandler(ch)
+logger.addHandler(fh)
 
 
 def get_html(driver):
@@ -39,7 +59,7 @@ def build_tweet(tweet_html):
         tweet.enrich_tweet(tweet_html)
         write_tweet_csv(tweet)
     except IndexError:
-        print('Not a tweet')
+        logger.error('Not a tweet ' + traceback.format_exc())
         tweet.false_tweet()
     return tweet
 
@@ -161,7 +181,7 @@ def filter_tweets(tweets):
 
 
 def main_db(db_name, tweets, users):
-    with TweetDB(db_name) as db:
+    with Database_Manager(db_name) as db:
         db.create_db()
         db.use_db()
         db.create_tables(db_queries.TABLES)
