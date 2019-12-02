@@ -37,7 +37,7 @@ def build_tweet(tweet_html):
     tweet = Tweet()
     try:
         tweet.enrich_tweet(tweet_html)
-        #write_tweet_csv(tweet)
+        write_tweet_csv(tweet)
     except IndexError:
         print('Not a tweet')
         tweet.false_tweet()
@@ -47,6 +47,7 @@ def build_tweet(tweet_html):
 def scrape_tweets(all_tweets):
     """
     Get list of parsed tweets with relevant content
+    :param user:
     :param all_tweets: list of tweets
     :return: list of tweets with relevant content
     """
@@ -136,7 +137,7 @@ def write_tweet_csv(tweet):
                          'date': tweet.date,
                          'username': tweet.username,
                          'tweets': tweet.text,
-                         'hashtags': tweet.hashtags,
+                         'hashtags': ' '.join(tweet.hashtags),
                          'replies': tweet.replies,
                          'retweets': tweet.retweets,
                          'likes': tweet.likes})
