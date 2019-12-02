@@ -208,7 +208,7 @@ def main():
             i += 1
 
         tweets = filter_tweets(tweets)
-        main_db('tweets3', tweets, users)
+        main_db(config.mysql['db'], tweets, users)
         driver.quit()
 
 
