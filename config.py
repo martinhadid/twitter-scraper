@@ -13,8 +13,8 @@ tweet = {
 }
 
 
-mysql = {'user': 'tm_dev',
-         'password': 'tm_devtm_dev',
+mysql = {'user': 'twitter',
+         'password': 'twittertwitter',
          'host': '127.0.0.1',
          #'database': 'imdb',
          'port': 3306

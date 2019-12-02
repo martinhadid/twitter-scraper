@@ -5,6 +5,12 @@ class User:
         self.following = following
         self.total_tweets = total_tweets
 
+    def __eq__(self, other):
+        if self.username == other.username:
+            return True
+        else:
+            return False
+
     def _fetch_stats(self, scrap):
         """Fetches user stats and adds these to user object."""
         all_stats = scrap.find_all('a', class_='ProfileNav-stat')
