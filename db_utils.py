@@ -122,7 +122,7 @@ class TweetDB:
 
     def insert_hashtags(self, tweet):
         """Inserts tweet hashtags into DB"""
-        hasthags = tweet.hashtags.split(' ')
+        hasthags = tweet.hashtags
         tweet_id = tweet.internal_id
         query = '''INSERT INTO HASHTAG (TWEET_ID, HASHTAG) VALUES (%s, %s)'''
         for hashtag in hasthags:
@@ -156,7 +156,8 @@ class TweetDB:
         for tweet in tweets:
             if not self.tweet_exists(tweet):
                 self.insert_tweet(tweet)
-                self.insert_hashtags(tweet)
+                if tweet.hashtags:
+                    self.insert_hashtags(tweet)
                 new += 1
             else:
                 self.write_tweet_hist(tweet)

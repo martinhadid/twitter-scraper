@@ -37,7 +37,7 @@ def build_tweet(tweet_html):
     tweet = Tweet()
     try:
         tweet.enrich_tweet(tweet_html)
-        write_tweet_csv(tweet)
+        #write_tweet_csv(tweet)
     except IndexError:
         print('Not a tweet')
         tweet.false_tweet()
