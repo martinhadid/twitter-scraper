@@ -6,8 +6,12 @@ import argparse
 from tweet import Tweet
 from user import User
 import config
-from db_utils import TweetDB
+from database_manager import Database_Manager
 import db_queries
+import logger
+import traceback
+
+logger = logger.Logger()
 
 
 def get_html(driver):
@@ -39,7 +43,7 @@ def build_tweet(tweet_html):
         tweet.enrich_tweet(tweet_html)
         write_tweet_csv(tweet)
     except IndexError:
-        print('Not a tweet')
+        logger.error('Not a tweet ' + traceback.format_exc())
         tweet.false_tweet()
     return tweet
 
@@ -117,9 +121,7 @@ def configure_search(word, start_date, end_date, language):
 
 
 def write_csv_header():
-    """
-    Writes csv columns headers
-    """
+    """Writes csv columns headers"""
     with open('twitterData.csv', 'w+') as csv_file:
         writer = DictWriter(csv_file, fieldnames=config.scraper['csv_headers'])
         writer.writeheader()
@@ -162,7 +164,7 @@ def filter_tweets(tweets):
 
 
 def main_db(db_name, tweets, users):
-    with TweetDB(db_name) as db:
+    with Database_Manager(db_name) as db:
         db.create_db()
         db.use_db()
         db.create_tables(db_queries.TABLES)
@@ -176,6 +178,8 @@ def main_db(db_name, tweets, users):
 
 
 def main():
+
+
     args = get_argparser()
     url = configure_search(args['word'], args['start_date'], args['end_date'], args['language'])
 
@@ -186,9 +190,8 @@ def main():
 
     try:
         tweets = scrape_tweets(get_tweets(get_html(driver)))
-    except Exception as e:
-        print('Something went wrong!')
-        print(e)
+    except Exception:
+        logger.error('Something went wrong! ' + traceback.format_exc())
         driver.quit()
     finally:
         usernames = get_users(tweets)
