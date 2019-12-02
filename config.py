@@ -16,6 +16,7 @@ tweet = {
 mysql = {'user': 'twitter',
          'password': 'twittertwitter',
          'host': '127.0.0.1',
-         'db': 'tweets3',
          'port': 3306
 }
+
+database_name = 'tweet'
