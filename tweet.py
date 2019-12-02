@@ -51,8 +51,7 @@ class Tweet:
     def _fetch_hashtags(self, scrap):
         """Sets hashtags from scrap"""
         hashtags_list = [''.join(hashtag.strings) for hashtag in scrap.find_all('a', class_='twitter-hashtag')]
-        hashtags_text = ' '.join(hashtags_list)
-        self.hashtags = hashtags_text
+        self.hashtags = hashtags_list
 
     def _fetch_counters(self, scrap):
         """Sets all counters (retweets, likes and replies) from scrap"""

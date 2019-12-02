@@ -57,7 +57,7 @@ def build_tweet(tweet_html):
     tweet = Tweet()
     try:
         tweet.enrich_tweet(tweet_html)
-        write_tweet_csv(tweet)
+        #write_tweet_csv(tweet)
     except IndexError:
         logger.error('Not a tweet ' + traceback.format_exc())
         tweet.false_tweet()
@@ -228,7 +228,7 @@ def main():
             i += 1
 
         tweets = filter_tweets(tweets)
-        main_db(config.mysql['db'], tweets, users)
+        main_db(config.database_name, tweets, users)
         driver.quit()
 
 

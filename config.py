@@ -1,4 +1,4 @@
-test_mode = False
+test_mode = True
 
 scraper = {
     'csv_headers': ['tweet_id', 'date', 'username', 'tweets', 'hashtags', 'replies', 'retweets', 'likes'],
@@ -16,6 +16,7 @@ tweet = {
 mysql = {'user': 'twitter',
          'password': 'twittertwitter',
          'host': '127.0.0.1',
-         'db': 'tweets3',
          'port': 3306
 }
+
+database_name = 'tweet'
