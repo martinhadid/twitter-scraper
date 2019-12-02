@@ -29,7 +29,7 @@ def build_tweet(tweet_html):
     tweet = Tweet()
     try:
         tweet.enrich_tweet(tweet_html)
-        #write_tweet_csv(tweet)
+        write_tweet_csv(tweet)
     except IndexError:
         logger.error('Not a tweet ' + traceback.format_exc())
         tweet.false_tweet()
@@ -99,7 +99,7 @@ def write_tweet_csv(tweet):
                          'date': tweet.date,
                          'username': tweet.username,
                          'tweets': tweet.text,
-                         'hashtags': tweet.hashtags,
+                         'hashtags': ' '.join(tweet.hashtags),
                          'replies': tweet.replies,
                          'retweets': tweet.retweets,
                          'likes': tweet.likes})
