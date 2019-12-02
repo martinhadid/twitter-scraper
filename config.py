@@ -12,9 +12,11 @@ tweet = {
     'likes': 2
 }
 
-mysql = {
-    'host': 'localhost',
-    'user': 'root',
-    'password': 'my secret password',
-    'db': 'tweets.db'
+
+mysql = {'user': 'tm_dev',
+         'password': 'tm_devtm_dev',
+         'host': '127.0.0.1',
+         #'database': 'imdb',
+         'port': 3306
+
 }

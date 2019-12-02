@@ -15,6 +15,12 @@ class Tweet:
         self.likes = likes
         self._val = True
 
+    def __eq__(self, other):
+        if self.tweet_id == other.tweet_id:
+            return True
+        else:
+            return False
+
     def _fetch_tweet_id(self, scrap):
         """Sets tweet id from scrap"""
         self.tweet_id = str(scrap.find('a', class_='tweet-timestamp js-permalink js-nav js-tooltip').attrs.get(
@@ -57,12 +63,15 @@ class Tweet:
         self._fetch_counters(scrap)
         self._fetch_text(scrap)
         self._fetch_hashtags(scrap)
-        self._fetch_date(scrap, True)
+        self._fetch_date(scrap, False)
         self._fetch_username(scrap)
         self._fetch_tweet_id(scrap)
 
     def false_tweet(self):
         self._val = False
+
+    def set_internal_id(self, internal_id):
+        self.internal_id = internal_id
 
     def __bool__(self):
         return self._val

@@ -3,11 +3,15 @@ from driver import Driver
 from bs4 import BeautifulSoup
 from csv import DictWriter
 import argparse
-import db_tools
 from tweet import Tweet
 from user import User
 import datetime
 import config
+from db_utils import TweetDB
+import db_queries
+
+
+TEST_MODE = True
 
 
 def get_html(driver):
@@ -55,6 +59,7 @@ def scrape_tweets(all_tweets):
         tweet = build_tweet(tweet_html)
         if tweet:
             tweets.append(tweet)
+            print(tweet.username)
     return tweets
 
 
@@ -80,6 +85,7 @@ def scrape_user(html, username):
     """
     user = User(username)
     user.enrich_user(html)
+    print(user.username)
     return user
 
 
@@ -151,6 +157,14 @@ def user_url(user):
     return config.scraper['twitter_url'] + user
 
 
+def filter_tweets(tweets):
+    final_tweets = []
+    for tweet in tweets:
+        if tweet not in final_tweets:
+            final_tweets.append(tweet)
+    return final_tweets
+
+
 def main_db():
     db_tools.delete_db(config.mysql['db'])
     db_tools.create_db_tables(config.mysql['db'])
@@ -167,29 +181,40 @@ def main():
 
     try:
         tweets = scrape_tweets(get_tweets(get_html(driver)))
-        usernames = get_users(tweets)
     except Exception as e:
         print('Something went wrong!')
         print(e)
         driver.quit()
     finally:
+        usernames = get_users(tweets)
         users = []
         print('The number of unique usernames gathered is:', len(usernames))
         i = 0
-        for username in usernames[:1]:
-            print('**********\nWere at user', i, 'out of', len(usernames), '\n******')
-            url = user_url(username)
-            driver.scroll(url, .5)
-            users.append(scrape_user(get_html(driver), username))
-            tweets += scrape_tweets(get_tweets(get_html(driver)))
+        for username in usernames:
+            if not TEST_MODE or i < 2:
+                print('**********\nWere at user', i, 'out of', len(usernames), '\n******')
+                url = user_url(username)
+                driver.scroll(url, .5)
+                users.append(scrape_user(get_html(driver), username))
+                tweets += scrape_tweets(get_tweets(get_html(driver)))
+                # TODO: GET USERS FROM TWEETS THAT ARE RETWEETED WITHIN USER PAGE. THIS GIVES A NEW USER THAT MIGHT
+                #  NOT BE IN DATABASE. WILL CAUSE FK ERRORS
+            else:
+                users.append(User(username))
             i += 1
 
-        main_db()
-        init_time = datetime.datetime.timestamp(datetime.datetime.now())
-        tweets_added = db_tools.write_tweets(tweets, init_time, config.mysql['db'])
-        print('A total of', tweets_added, 'were added to DB.')
-        users_added = db_tools.write_users(users, init_time, config.mysql['db'])
-        print('A total of', users_added, 'users were added to DB.')
+        tweets = filter_tweets(tweets)
+        # main_db()
+        with TweetDB('tweets3') as db:
+            db.create_db()
+            db.use_db()
+            db.create_tables(db_queries.TABLES)
+            new_users, updated_users = db.write_users(users)
+            db.commit()
+            new_tweets, updated_tweets = db.write_tweets(tweets)
+            db.commit()
+        print(new_users, 'new users were inserted in the database.', updated_users, 'users were updated.')
+        print(new_tweets, 'new tweets were inserted in the database.', updated_tweets, 'tweets were updated.')
         print('The tweets are ready!')
         driver.quit()
 
