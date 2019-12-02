@@ -5,13 +5,9 @@ from csv import DictWriter
 import argparse
 from tweet import Tweet
 from user import User
-import datetime
 import config
 from db_utils import TweetDB
 import db_queries
-
-
-TEST_MODE = True
 
 
 def get_html(driver):
@@ -114,7 +110,7 @@ def configure_search(word, start_date, end_date, language):
     :return: formatted url
     """
     url = 'https://twitter.com/search?q='
-    url += '{}%20'.format(word)
+    url += '%23{}%20'.format(word)
     url += 'since%3A{}%20until%3A{}&'.format(start_date, end_date)
     url += 'l={}&'.format(language)
     url += 'src=typd'
@@ -165,9 +161,18 @@ def filter_tweets(tweets):
     return final_tweets
 
 
-def main_db():
-    db_tools.delete_db(config.mysql['db'])
-    db_tools.create_db_tables(config.mysql['db'])
+def main_db(db_name, tweets, users):
+    with TweetDB(db_name) as db:
+        db.create_db()
+        db.use_db()
+        db.create_tables(db_queries.TABLES)
+        new_users, updated_users = db.write_users(users)
+        db.commit()
+        new_tweets, updated_tweets = db.write_tweets(tweets)
+        db.commit()
+    print(new_users, 'new users were inserted in the database.', updated_users, 'users were updated.')
+    print(new_tweets, 'new tweets were inserted in the database.', updated_tweets, 'tweets were updated.')
+    print('The tweets are ready!')
 
 
 def main():
@@ -191,7 +196,7 @@ def main():
         print('The number of unique usernames gathered is:', len(usernames))
         i = 0
         for username in usernames:
-            if not TEST_MODE or i < 2:
+            if not config.test_mode or i < 2:
                 print('**********\nWere at user', i, 'out of', len(usernames), '\n******')
                 url = user_url(username)
                 driver.scroll(url, .5)
@@ -204,18 +209,7 @@ def main():
             i += 1
 
         tweets = filter_tweets(tweets)
-        # main_db()
-        with TweetDB('tweets3') as db:
-            db.create_db()
-            db.use_db()
-            db.create_tables(db_queries.TABLES)
-            new_users, updated_users = db.write_users(users)
-            db.commit()
-            new_tweets, updated_tweets = db.write_tweets(tweets)
-            db.commit()
-        print(new_users, 'new users were inserted in the database.', updated_users, 'users were updated.')
-        print(new_tweets, 'new tweets were inserted in the database.', updated_tweets, 'tweets were updated.')
-        print('The tweets are ready!')
+        main_db('tweets3', tweets, users)
         driver.quit()
 
 
