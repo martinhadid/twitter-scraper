@@ -7,7 +7,7 @@ from tweet import Tweet
 from user import User
 import config
 from databasemanager import DatabaseManager
-import db_queries
+from mysql import connector
 import logger
 import traceback
 
@@ -15,8 +15,9 @@ import traceback
 logger = logger.Logger()
 
 
-def get_html(driver):
+def get_html(driver, url):
     """Extract html from the browser"""
+    driver.scroll(url)
     return BeautifulSoup(driver.get_page_source(), 'html.parser')
 
 
@@ -159,43 +160,41 @@ def write_tweet_csv(tweet):
 def main_db(db_name, tweets, users):
     """Create DB, use it and insert users and tweets"""
     with DatabaseManager(db_name) as db:
-        db.create_db()
         db.use_db()
-        db.create_tables(db_queries.TABLES)
         new_users, updated_users = db.write_users(users)
         db.commit()
         new_tweets, updated_tweets = db.write_tweets(tweets)
         db.commit()
 
-    logger.info(str(new_users) + ' new users were inserted in the database. ' + str(updated_users) + ' users were '
-                                                                                                     'updated.')
-    logger.info(str(new_tweets) + ' new tweets were inserted in the database. ' + str(updated_tweets) + ' tweets were '
-                                                                                                        'updated.')
+    logger.info(str(new_users) + ' new users were inserted in the database. ')
+    logger.info(str(updated_users) + ' users were updated.')
+    logger.info(str(new_tweets) + ' new tweets were inserted in the database. ')
+    logger.info(str(updated_tweets) + ' tweets were updated.')
 
 
 def main():
     args = get_argparser()
     url = configure_search(args['word'], args['start_date'], args['end_date'], args['language'])
-
     driver = Driver()
-    driver.scroll(url)
-
     write_csv_header()
 
     try:
-        tweets = scrape_tweets(get_tweets(get_html(driver)))
-    except Exception:
-        logger.error('Something went wrong! ' + traceback.format_exc())
-        driver.quit()
-    finally:
+        tweets = scrape_tweets(get_tweets(get_html(driver, url)))
         usernames = get_usernames(tweets)
         users, user_tweets = scrape_all_users(usernames, driver)
         tweets += user_tweets
         extra_usernames = get_extra_usernames(usernames, tweets)
         users += create_extra_users(extra_usernames)
         tweets = filter_tweets(tweets)
-
         main_db(config.database_name, tweets, users)
+        driver.quit()
+
+    except connector.errors.ProgrammingError:
+        logger.error('DB doesn\'t exists, please run create_db.sql')
+    except connector.errors.DatabaseError:
+        logger.error('Can\'t connect to server')
+    except Exception:
+        logger.error('Something went wrong!')
         driver.quit()
 
 
