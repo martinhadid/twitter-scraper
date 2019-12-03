@@ -167,9 +167,9 @@ def main_db(db_name, tweets, users):
         new_tweets, updated_tweets = db.write_tweets(tweets)
         db.commit()
 
-    logger.info(str(new_users) + ' new users were inserted in the database. ' + str(updated_users) + 'users were '
+    logger.info(str(new_users) + ' new users were inserted in the database. ' + str(updated_users) + ' users were '
                                                                                                      'updated.')
-    logger.info(str(new_tweets) + ' new tweets were inserted in the database. ' + str(updated_tweets) + 'tweets were '
+    logger.info(str(new_tweets) + ' new tweets were inserted in the database. ' + str(updated_tweets) + ' tweets were '
                                                                                                         'updated.')
 
 
