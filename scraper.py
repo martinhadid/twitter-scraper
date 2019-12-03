@@ -63,7 +63,7 @@ def scrape_tweets(all_tweets):
     return tweets
 
 
-def get_users(tweets):
+def get_usersnames(tweets):
     """
     Get list of users to be scraped
     :param tweets: tweets with relevant content
@@ -163,6 +163,23 @@ def filter_tweets(tweets):
     return final_tweets
 
 
+def get_extra_usersnames(usernames, tweets):
+    all_users = get_usersnames(tweets)
+    extra_users = []
+    for username in all_users:
+        if username not in usernames:
+            extra_users.append(username)
+    return extra_users
+
+
+def create_extra_users(extra_usernames):
+    users = []
+    if extra_usernames:
+        for username in extra_usernames:
+            users.append(User(username))
+    return users
+
+
 def main_db(db_name, tweets, users):
     with Database_Manager(db_name) as db:
         db.create_db()
@@ -177,9 +194,24 @@ def main_db(db_name, tweets, users):
     print('The tweets are ready!')
 
 
+def scrape_all_users(usernames, driver):
+    i = 0
+    users = []
+    user_tweets = []
+    for username in usernames:
+        if not config.test_mode or i < 2:
+            print('**********\nWere at user', i, 'out of', len(usernames), '\n******')
+            url = user_url(username)
+            driver.scroll(url, .5)
+            users.append(scrape_user(get_html(driver), username))
+            user_tweets += scrape_tweets(get_tweets(get_html(driver)))
+        else:
+            users.append(User(username))
+        i += 1
+    return users, user_tweets
+
+
 def main():
-
-
     args = get_argparser()
     url = configure_search(args['word'], args['start_date'], args['end_date'], args['language'])
 
@@ -194,24 +226,14 @@ def main():
         logger.error('Something went wrong! ' + traceback.format_exc())
         driver.quit()
     finally:
-        usernames = get_users(tweets)
-        users = []
-        print('The number of unique usernames gathered is:', len(usernames))
-        i = 0
-        for username in usernames:
-            if not config.test_mode or i < 2:
-                print('**********\nWere at user', i, 'out of', len(usernames), '\n******')
-                url = user_url(username)
-                driver.scroll(url, .5)
-                users.append(scrape_user(get_html(driver), username))
-                tweets += scrape_tweets(get_tweets(get_html(driver)))
-                # TODO: GET USERS FROM TWEETS THAT ARE RETWEETED WITHIN USER PAGE. THIS GIVES A NEW USER THAT MIGHT
-                #  NOT BE IN DATABASE. WILL CAUSE FK ERRORS
-            else:
-                users.append(User(username))
-            i += 1
+        usernames = get_usersnames(tweets)
+        users, user_tweets = scrape_all_users(usernames, driver)
+        tweets += user_tweets
+        extra_usernames = get_extra_usersnames(usernames, tweets)
+        users += create_extra_users(extra_usernames)
 
         tweets = filter_tweets(tweets)
+
         main_db(config.database_name, tweets, users)
         driver.quit()
 

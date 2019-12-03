@@ -1,7 +1,5 @@
 TABLES = {}
 
-# TODO RECREATE USER FOREIGN KEY. NEED TO GET USERS FROM SECOND PASS (IF RETWEET USER IS DIFFERENT)
-
 TABLES['USER'] = '''CREATE TABLE IF NOT EXISTS USER (
                             USER_CD VARCHAR(40),
                             FOLLOWERS INT,
@@ -20,10 +18,9 @@ TABLES['TWEET'] = '''CREATE TABLE IF NOT EXISTS TWEET (
                             REPLIES INT,
                             RETWEETS INT,
                             LIKES INT,
-                            LAST_UPD_DATE INT)
+                            LAST_UPD_DATE INT,
+                            FOREIGN KEY (USER_CD) REFERENCES USER(USER_CD))
                 '''
-
-# TODO add to above--FOREIGN KEY (USER_CD) REFERENCES USER(USER_CD))
 
 
 TABLES['HASHTAG'] = '''CREATE TABLE IF NOT EXISTS HASHTAG (
