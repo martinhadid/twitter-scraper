@@ -1,5 +1,5 @@
 drop database if exists twitter;
-create schema twitter;
+create schema twitter DEFAULT CHARACTER SET 'utf8mb4';
 use twitter;
 
 CREATE TABLE USER (
