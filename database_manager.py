@@ -142,7 +142,7 @@ class Database_Manager:
             if not self.user_exists(user):
                 self.insert_user(user)
                 new += 1
-            else:
+            elif user.followers is not None:
                 self.write_user_hist(user)
                 self.update_user(user)
                 updated += 1
