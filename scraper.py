@@ -46,7 +46,7 @@ def scrape_tweets(all_tweets):
     return tweets
 
 
-def get_usersnames(tweets):
+def get_usernames(tweets):
     """Get list of users to be scraped"""
     users = []
     for tweet in tweets:
@@ -76,7 +76,7 @@ def get_argparser():
 
 def configure_search(word, start_date, end_date, language):
     """Prepares the Url to be requested"""
-    url = 'https://twitter.com/search?q='
+    url = config.scraper['twitter_search_url']
     url += '%23{}%20'.format(word)
     url += 'since%3A{}%20until%3A{}&'.format(start_date, end_date)
     url += 'l={}&'.format(language)
@@ -120,7 +120,7 @@ def filter_tweets(tweets):
 
 
 def get_extra_usersnames(usernames, tweets):
-    all_users = get_usersnames(tweets)
+    all_users = get_usernames(tweets)
     extra_users = []
     for username in all_users:
         if username not in usernames:
@@ -150,7 +150,6 @@ def main_db(db_name, tweets, users):
     print('The tweets are ready!')
 
 
-
 def scrape_all_users(usernames, driver):
     i = 0
     users = []
@@ -168,7 +167,6 @@ def scrape_all_users(usernames, driver):
     return users, user_tweets
 
 
-
 def main():
     args = get_argparser()
     url = configure_search(args['word'], args['start_date'], args['end_date'], args['language'])
@@ -184,7 +182,7 @@ def main():
         logger.error('Something went wrong! ' + traceback.format_exc())
         driver.quit()
     finally:
-        usernames = get_usersnames(tweets)
+        usernames = get_usernames(tweets)
         users, user_tweets = scrape_all_users(usernames, driver)
         tweets += user_tweets
         extra_usernames = get_extra_usersnames(usernames, tweets)
