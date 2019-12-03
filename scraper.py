@@ -11,6 +11,7 @@ import db_queries
 import logger
 import traceback
 
+"""global variable to log info and error to scraper_logs"""
 logger = logger.Logger()
 
 
@@ -46,6 +47,15 @@ def scrape_tweets(all_tweets):
     return tweets
 
 
+def filter_tweets(tweets):
+    """Filters all tweets to unique tweets to avoid database conflicts."""
+    final_tweets = []
+    for tweet in tweets:
+        if tweet not in final_tweets:
+            final_tweets.append(tweet)
+    return final_tweets
+
+
 def get_usernames(tweets):
     """Get list of users to be scraped"""
     users = []
@@ -60,6 +70,47 @@ def scrape_user(html, username):
     user = User(username)
     user.enrich_user(html)
     return user
+
+
+def user_url(user):
+    """Get users page url"""
+    return config.scraper['twitter_url'] + user
+
+
+def get_extra_usernames(usernames, tweets):
+    """Get users from retweeted tweets"""
+    all_users = get_usernames(tweets)
+    extra_users = []
+    for username in all_users:
+        if username not in usernames:
+            extra_users.append(username)
+    return extra_users
+
+
+def create_extra_users(extra_usernames):
+    """Get unique users to be added to the DB"""
+    users = []
+    if extra_usernames:
+        for username in extra_usernames:
+            users.append(User(username))
+    return users
+
+
+def scrape_all_users(usernames, driver):
+    """Scrape users info"""
+    i = 0
+    users = []
+    user_tweets = []
+    for username in usernames:
+        if not config.test_mode or i < 2:
+            url = user_url(username)
+            driver.scroll(url, .5)
+            users.append(scrape_user(get_html(driver), username))
+            user_tweets += scrape_tweets(get_tweets(get_html(driver)))
+        else:
+            users.append(User(username))
+        i += 1
+    return users, user_tweets
 
 
 def get_argparser():
@@ -105,38 +156,8 @@ def write_tweet_csv(tweet):
                          'likes': tweet.likes})
 
 
-def user_url(user):
-    """Get users page url"""
-    return config.scraper['twitter_url'] + user
-
-
-def filter_tweets(tweets):
-    """Filters all tweets to unique tweets to avoid database conflicts."""
-    final_tweets = []
-    for tweet in tweets:
-        if tweet not in final_tweets:
-            final_tweets.append(tweet)
-    return final_tweets
-
-
-def get_extra_usersnames(usernames, tweets):
-    all_users = get_usernames(tweets)
-    extra_users = []
-    for username in all_users:
-        if username not in usernames:
-            extra_users.append(username)
-    return extra_users
-
-
-def create_extra_users(extra_usernames):
-    users = []
-    if extra_usernames:
-        for username in extra_usernames:
-            users.append(User(username))
-    return users
-
-
 def main_db(db_name, tweets, users):
+    """Create DB, use it and insert users and tweets"""
     with Database_Manager(db_name) as db:
         db.create_db()
         db.use_db()
@@ -145,26 +166,11 @@ def main_db(db_name, tweets, users):
         db.commit()
         new_tweets, updated_tweets = db.write_tweets(tweets)
         db.commit()
-    print(new_users, 'new users were inserted in the database.', updated_users, 'users were updated.')
-    print(new_tweets, 'new tweets were inserted in the database.', updated_tweets, 'tweets were updated.')
-    print('The tweets are ready!')
 
-
-def scrape_all_users(usernames, driver):
-    i = 0
-    users = []
-    user_tweets = []
-    for username in usernames:
-        if not config.test_mode or i < 2:
-            print('**********\nWere at user', i, 'out of', len(usernames), '\n******')
-            url = user_url(username)
-            driver.scroll(url, .5)
-            users.append(scrape_user(get_html(driver), username))
-            user_tweets += scrape_tweets(get_tweets(get_html(driver)))
-        else:
-            users.append(User(username))
-        i += 1
-    return users, user_tweets
+    logger.info(str(new_users) + ' new users were inserted in the database. ' + str(updated_users) + 'users were '
+                                                                                                     'updated.')
+    logger.info(str(new_tweets) + ' new tweets were inserted in the database. ' + str(updated_tweets) + 'tweets were '
+                                                                                                        'updated.')
 
 
 def main():
@@ -185,9 +191,8 @@ def main():
         usernames = get_usernames(tweets)
         users, user_tweets = scrape_all_users(usernames, driver)
         tweets += user_tweets
-        extra_usernames = get_extra_usersnames(usernames, tweets)
+        extra_usernames = get_extra_usernames(usernames, tweets)
         users += create_extra_users(extra_usernames)
-
         tweets = filter_tweets(tweets)
 
         main_db(config.database_name, tweets, users)
