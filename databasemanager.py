@@ -1,7 +1,9 @@
 from datetime import datetime
 from mysql import connector
 import config
+import logger
 
+logger = logger.Logger()
 
 # TODO MOVE COMMIT INSIDE WRITE TWEETS/USERS AND LIMIT BY NUMBER OF TWEETS/USERS
 
@@ -15,6 +17,10 @@ class DatabaseManager:
         """Open db connection and cursor"""
         self.con = connector.connect(**config.mysql)
         self.cur = self.con.cursor(buffered=True)
+        if self.con.is_connected():
+            logger.info('Connection established')
+        else:
+            logger.info('Connection failed')
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -26,11 +32,6 @@ class DatabaseManager:
         """Use database for all queries"""
         self.cur.execute("USE %s" % self.database)
 
-    def create_tables(self, tables):
-        """Create all tables if these don't exist"""
-        for table_name in tables:
-            self.cur.execute(tables[table_name])
-
     def run_query(self, query):
         """Run any select query"""
         self.cur.execute(query)
@@ -38,10 +39,6 @@ class DatabaseManager:
         for item in self.cur:
             result.append(item)
         return result
-
-    def create_db(self):
-        """Creates database if it doesnt exist"""
-        self.cur.execute("CREATE DATABASE IF NOT EXISTS %s DEFAULT CHARACTER SET 'utf8mb4'" % self.database)
 
     def user_exists(self, user):
         """Returns whether or not user exists in DB"""
