@@ -6,7 +6,7 @@ import argparse
 from tweet import Tweet
 from user import User
 import config
-from database_manager import Database_Manager
+from databasemanager import DatabaseManager
 import db_queries
 import logger
 import traceback
@@ -158,7 +158,7 @@ def write_tweet_csv(tweet):
 
 def main_db(db_name, tweets, users):
     """Create DB, use it and insert users and tweets"""
-    with Database_Manager(db_name) as db:
+    with DatabaseManager(db_name) as db:
         db.create_db()
         db.use_db()
         db.create_tables(db_queries.TABLES)

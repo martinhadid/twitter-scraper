@@ -5,7 +5,7 @@ import config
 
 # TODO MOVE COMMIT INSIDE WRITE TWEETS/USERS AND LIMIT BY NUMBER OF TWEETS/USERS
 
-class Database_Manager:
+class DatabaseManager:
     def __init__(self, database=None):
         """Initialize db instance"""
         self.database = database
