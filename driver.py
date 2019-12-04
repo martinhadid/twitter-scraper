@@ -8,7 +8,7 @@ class Driver:
     def __init__(self):
         self.driver = webdriver.Chrome(os.path.join(os.path.dirname(__file__), config.driver))
 
-    def scroll(self, url, max_time=2):
+    def scroll(self, url, max_time):
         """Scroll down the browser for the requested time"""
         self.driver.get(url)
         start_time = time.time()
