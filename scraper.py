@@ -15,9 +15,9 @@ import traceback
 logger = logger.Logger()
 
 
-def get_html(driver, url):
+def get_html(driver, url, scroll_time=2):
     """Extract html from the browser"""
-    driver.scroll(url)
+    driver.scroll(url, scroll_time)
     return BeautifulSoup(driver.get_page_source(), 'html.parser')
 
 
@@ -105,9 +105,9 @@ def scrape_all_users(usernames, driver):
     for username in usernames:
         if not config.test_mode or i < 2:
             url = user_url(username)
-            driver.scroll(url, .5)
-            users.append(scrape_user(get_html(driver), username))
-            user_tweets += scrape_tweets(get_tweets(get_html(driver)))
+            html = get_html(driver, url, 0.5)
+            users.append(scrape_user(html, username))
+            user_tweets += scrape_tweets(get_tweets(html))
         else:
             users.append(User(username))
         i += 1
