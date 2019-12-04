@@ -20,4 +20,4 @@ mysql = {'user': 'twitter',
          'port': 3306
 }
 
-database_name = 'tweet'
+database_name = 'twitter'
