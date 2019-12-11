@@ -79,14 +79,6 @@ class Scraper:
                 extra_users.append(username)
         return extra_users
 
-    def create_extra_users(self, extra_usernames):
-        """Get unique users to be added to the DB"""
-        users = []
-        if extra_usernames:
-            for username in extra_usernames:
-                users.append(User(username))
-        return users
-
     def scrape_all_users(self, usernames):
         """Scrape users info"""
         i = 0
