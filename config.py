@@ -1,4 +1,4 @@
-test_mode = False
+test_mode = True
 
 scraper = {
     'csv_headers': ['tweet_id', 'date', 'username', 'tweets', 'hashtags', 'replies', 'retweets', 'likes'],
@@ -24,6 +24,13 @@ mysql = {'user': 'twitter',
          'password': 'twittertwitter',
          'host': '127.0.0.1',
          'port': 3306
+         }
+
+API = {
+    'consumer_key': 'dYgo8B2sDLruMrVXR0Kd7Tp5N',
+    'consumer_secret': '5Yb6v2v4Y4zulq8fXL5iRuuTK4G0df48AoQI36B7XTm0cw1sIT',
+    'access_token': '1204735114581827585-OLFpb3m4IHKmRlZ0kQM1j5LMRhNCyB',
+    'access_token_secret': 'JXQcqSP15ihwjYDzyub9sWJFRwIjuUolhlSOlj5IlhjkP'
 }
 
 database_name = 'twitter'
