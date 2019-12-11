@@ -40,7 +40,7 @@ def main():
         users, user_tweets = scraper.scrape_all_users(usernames)
         tweets += user_tweets
         extra_usernames = scraper.get_extra_usernames(usernames, tweets)
-        users += twitter_client.get_users_missing_data(scraper.create_extra_users(extra_usernames))
+        users += twitter_client.get_users_missing_data(extra_usernames)
         tweets = scraper.filter_tweets(tweets)
         main_db(config.database_name, tweets, users)
         driver.quit()
