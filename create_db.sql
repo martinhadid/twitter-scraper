@@ -26,7 +26,7 @@ CREATE TABLE TWEET (
 
 CREATE TABLE HASHTAG (
                     TWEET_ID INT,
-                    HASHTAG VARCHAR(40),
+                    HASHTAG VARCHAR(255),
                     FOREIGN KEY(TWEET_ID) REFERENCES TWEET(TWEET_ID)
                     );
 

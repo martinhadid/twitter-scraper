@@ -12,8 +12,9 @@ class Driver:
         """Scroll down the browser for the requested time"""
         self.driver.get(url)
         start_time = time.time()
-        while (time.time() - start_time) < max_time:
-            self.driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
+        if not max_time == -1:
+            while (time.time() - start_time) < max_time:
+                self.driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
 
     def get_page_source(self):
         """Get page source from the browser"""
