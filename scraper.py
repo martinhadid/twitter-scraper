@@ -2,7 +2,6 @@
 from driver import Driver
 from bs4 import BeautifulSoup
 from csv import DictWriter
-import argparse
 from tweet import Tweet
 from user import User
 import config
@@ -10,6 +9,7 @@ from databasemanager import DatabaseManager
 from mysql import connector
 import logger
 import traceback
+import commandline
 
 """global variable to log info and error to scraper_logs"""
 logger = logger.Logger()
@@ -114,28 +114,6 @@ def scrape_all_users(usernames, driver):
     return users, user_tweets
 
 
-def get_argparser():
-    """Command line interface configuration handler"""
-    parser = argparse.ArgumentParser(description='Command Configuration')
-    parser.add_argument('--word', default='bitcoin')
-    parser.add_argument('--start_date', default='2019-10-21')
-    parser.add_argument('--end_date', default='2019-10-31')
-    parser.add_argument('--language', choices=['en', 'it', 'es', 'fr', 'de', 'ru', 'zh'], default='en')
-
-    argparser = parser.parse_args()
-    return argparser.__dict__
-
-
-def configure_search(word, start_date, end_date, language):
-    """Prepares the Url to be requested"""
-    url = config.scraper['twitter_search_url']
-    url += '%23{}%20'.format(word)
-    url += 'since%3A{}%20until%3A{}&'.format(start_date, end_date)
-    url += 'l={}&'.format(language)
-    url += 'src=typd'
-    return url
-
-
 def write_csv_header():
     """Writes csv columns headers"""
     with open('twitterData.csv', 'w+') as csv_file:
@@ -173,8 +151,9 @@ def main_db(db_name, tweets, users):
 
 
 def main():
-    args = get_argparser()
-    url = configure_search(args['word'], args['start_date'], args['end_date'], args['language'])
+    cli = commandline.CommandLine()
+    url = cli.configure_search()
+
     driver = Driver()
     write_csv_header()
 
