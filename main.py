@@ -5,6 +5,7 @@ import config
 import commandline
 from driver import Driver
 from scraper import Scraper
+from twitterclient import TwitterClient
 
 """global variable to log info and error to scraper_logs"""
 logger = logger.Logger()
@@ -31,6 +32,7 @@ def main():
     url = cli.configure_search()
 
     scraper = Scraper(driver, url)
+    twitter_client = TwitterClient()
 
     try:
         tweets = scraper.scrape_tweets(scraper.get_tweets(scraper.get_html(1)))
@@ -38,10 +40,10 @@ def main():
         users, user_tweets = scraper.scrape_all_users(usernames)
         tweets += user_tweets
         extra_usernames = scraper.get_extra_usernames(usernames, tweets)
-        users += scraper.create_extra_users(extra_usernames)
+        users += twitter_client.get_users_missing_data(scraper.create_extra_users(extra_usernames))
         tweets = scraper.filter_tweets(tweets)
         main_db(config.database_name, tweets, users)
-        scraper.driver.quit()
+        driver.quit()
 
     except connector.errors.ProgrammingError:
         logger.error('DB doesn\'t exists, please run create_db.sql')
@@ -49,7 +51,7 @@ def main():
         logger.error('Can\'t connect to server')
     except Exception:
         logger.error('Something went wrong!')
-        scraper.driver.quit()
+        driver.quit()
 
 
 if __name__ == '__main__':
