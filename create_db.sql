@@ -21,6 +21,7 @@ CREATE TABLE TWEET (
                     RETWEETS INT,
                     LIKES INT,
                     LAST_UPD_DATE INT,
+                    SENTIMENT VARCHAR(5),
                     FOREIGN KEY (USER_CD) REFERENCES USER(USER_CD)
                     );
 
