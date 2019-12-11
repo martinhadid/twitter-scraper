@@ -1,23 +1,20 @@
 #!usr/bin/python3
-from driver import Driver
 from bs4 import BeautifulSoup
-from csv import DictWriter
 from tweet import Tweet
 from user import User
 import config
 import logger
 import traceback
-import commandline
+
 
 """global variable to log info and error to scraper_logs"""
 logger = logger.Logger()
 
 
 class Scraper:
-    def __init__(self):
-        self.cli = commandline.CommandLine()
-        self.url = self.cli.configure_search()
-        self.driver = Driver()
+    def __init__(self, driver, url):
+        self.url = url
+        self.driver = driver
 
     def get_html(self, scroll_time=config.scraper['homepage_scroll_time']):
         """Extract html from the browser"""
@@ -33,7 +30,6 @@ class Scraper:
         tweet = Tweet()
         try:
             tweet.enrich_tweet(tweet_html)
-            self.write_tweet_csv(tweet)
         except IndexError:
             logger.error('Not a tweet ' + traceback.format_exc())
             tweet.false_tweet()

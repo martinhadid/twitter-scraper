@@ -2,8 +2,9 @@ from databasemanager import DatabaseManager
 from mysql import connector
 import logger
 import config
+import commandline
+from driver import Driver
 from scraper import Scraper
-
 
 """global variable to log info and error to scraper_logs"""
 logger = logger.Logger()
@@ -25,8 +26,11 @@ def main_db(db_name, tweets, users):
 
 
 def main():
-    scraper = Scraper()
-    scraper.write_csv_header()
+    driver = Driver()
+    cli = commandline.CommandLine()
+    url = cli.configure_search()
+
+    scraper = Scraper(driver, url)
 
     try:
         tweets = scraper.scrape_tweets(scraper.get_tweets(scraper.get_html(1)))
