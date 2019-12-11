@@ -70,13 +70,16 @@ class Scraper:
         """Get users page url"""
         return config.scraper['twitter_url'] + user
 
-    def get_extra_usernames(self, usernames, tweets):
+    def get_extra_usernames(self, users, tweets):
         """Get users from retweeted tweets"""
         all_users = self.get_usernames(tweets)
+        usernames = []
         extra_users = []
-        for username in all_users:
-            if username not in usernames:
-                extra_users.append(username)
+        for user in users:
+            usernames.append(user.username)
+        for user in all_users:
+            if user not in usernames:
+                extra_users.append(user)
         return extra_users
 
     def scrape_all_users(self, usernames):
@@ -95,3 +98,13 @@ class Scraper:
             i += 1
             print('At user', i, 'out of', len(usernames))
         return users, user_tweets
+
+    def scrape(self):
+        tweets = self.scrape_tweets(self.get_tweets(self.get_html(1)))
+        usernames = self.get_usernames(tweets)
+        users, user_tweets = self.scrape_all_users(usernames)
+        tweets += user_tweets
+        tweets = self.filter_tweets(tweets)
+        return tweets, users
+
+

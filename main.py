@@ -26,6 +26,7 @@ def main_db(db_name, tweets, users):
     logger.info(str(updated_tweets) + ' tweets were updated.')
 
 
+
 def main():
     driver = Driver()
     cli = commandline.CommandLine()
@@ -35,13 +36,13 @@ def main():
     twitter_client = TwitterClient()
 
     try:
-        tweets = scraper.scrape_tweets(scraper.get_tweets(scraper.get_html(1)))
-        usernames = scraper.get_usernames(tweets)
-        users, user_tweets = scraper.scrape_all_users(usernames)
-        tweets += user_tweets
-        extra_usernames = scraper.get_extra_usernames(usernames, tweets)
+        # First we scrape the site for TWEETS and USERS.
+        tweets, users = scraper.scrape()
+        # Retweeted tweet's original users are not handled by the scraper and will have incomplete info:
+        extra_usernames = scraper.get_extra_usernames(users, tweets)
+        # We complete these with the API
         users += twitter_client.get_users_missing_data(extra_usernames)
-        tweets = scraper.filter_tweets(tweets)
+        # Save to DB
         main_db(config.database_name, tweets, users)
         driver.quit()
 
