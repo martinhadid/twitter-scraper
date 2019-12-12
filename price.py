@@ -40,7 +40,6 @@ class Price:
     def get_price(self):
         return self.value
 
-
 def calc_returns(prices):
     returns = []
     for i in range(len(prices) - 1):
@@ -57,7 +56,6 @@ def running_cum_return(returns, period_length):
             running_return *= (1 + ret)
         running_returns.append(running_return - 1)
     return running_returns
-
 
 def main():
     price = Price()

@@ -37,12 +37,16 @@ class TwitterClient:
                                             user_data.followers_count,
                                             user_data.friends_count,
                                             user_data.statuses_count))
+<<<<<<< HEAD
 
+=======
+>>>>>>> 1ad94115bb5fd5a0d59eae4a5b647f50a9e816a5
             return users_with_data
 
         except tweepy.TweepError as err:
             logger.error('Error : ' + str(err))
 
+<<<<<<< HEAD
 
     def get_followers(self, account_name):
         """Return a list of all the followers of an account"""
@@ -73,6 +77,8 @@ class TwitterClient:
             all_data += users_list
         return all_data
 
+=======
+>>>>>>> 1ad94115bb5fd5a0d59eae4a5b647f50a9e816a5
     def clean_tweet(self, tweet):
         ''' Function to clean tweet text'''
         return ' '.join(re.sub('(@[A-Za-z0-9]+)|([^0-9A-Za-z \t]) | (\w+:\ / \ / \S+)', ' ', tweet).split())
@@ -86,5 +92,8 @@ class TwitterClient:
             return 'neutral'
         else:
             return 'negative'
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 1ad94115bb5fd5a0d59eae4a5b647f50a9e816a5

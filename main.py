@@ -38,6 +38,7 @@ def main():
     price = Price()
     price.get_hist_price(cli.get_start_date(), cli.get_end_date())
 
+
 '''
     driver = Driver()
     scraper = Scraper(driver, url)
