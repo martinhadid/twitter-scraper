@@ -28,6 +28,7 @@ def main_db(db_name, tweets, users):
     logger.info(str(updated_tweets) + ' tweets were updated.')
     # logger.info('Last price: ' + str(price.get_price()))
 
+
 def coin_db(db_name, price, hist):
     """Create DB, use it and insert users, tweets and price"""
     with DatabaseManager(db_name) as db:
@@ -52,10 +53,11 @@ def main_coin(cli):
 def main():
     cli = CommandLine()
     url = cli.configure_search()
-    # # Avoid untrusted ssl certificates issues
+    # Avoid untrusted ssl certificates issues
     ssl._create_default_https_context = ssl._create_unverified_context
+
     current_price, hist = main_coin(cli)
-    coin_db(config.database_name,current_price,hist)
+    coin_db(config.database_name, current_price, hist)
 
     driver = Driver()
     scraper = Scraper(driver, url)

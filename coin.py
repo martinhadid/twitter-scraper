@@ -53,3 +53,4 @@ class Coin:
             price_per_day[value['date']] = value['close']
         return price_per_day
 
+

@@ -143,8 +143,8 @@ class DatabaseManager:
             return True
 
     def write_price_hist(self, hist):
-        for date, price in hist:
-            self.insert_price(date, price)
+        for date, price in hist.items():
+            self.insert_price(price, date)
 
     def commit(self):
         """Wrapping function to commit"""
