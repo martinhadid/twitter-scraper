@@ -34,7 +34,7 @@ class Coin:
 
     def get_current_price(self):
         """Function to get btc price"""
-        URL = 'https://www.bitstamp.net/api/v2/ticker/' + self.ticker
+        URL = 'https://www.bitstamp.net/api/v2/ticker/' + self.ticker.lower()
         try:
             r = requests.get(URL)
             data = json.loads(r.text)
