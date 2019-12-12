@@ -62,9 +62,9 @@ class DatabaseManager:
     def insert_tweet(self, tweet):
         """Inserts tweet into database and attaches internal ID to tweet object."""
         query = '''INSERT INTO TWEET (EXTERNAL_ID, USER_CD, TWEET_TEXT, TIMESTAMP, REPLIES, RETWEETS, LIKES, 
-                         LAST_UPD_DATE) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)'''
+                         LAST_UPD_DATE, SENTIMENT) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)'''
         values = (tweet.tweet_id, tweet.username, tweet.text,
-                  tweet.date, tweet.replies, tweet.retweets, tweet.likes, self.time)
+                  tweet.date, tweet.replies, tweet.retweets, tweet.likes, self.time, tweet._sentiment)
         self.cur.execute(query, values)
         internal_id = self.cur.lastrowid
         tweet.set_internal_id(internal_id)

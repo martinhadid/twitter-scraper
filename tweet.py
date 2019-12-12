@@ -1,5 +1,6 @@
 import datetime
 import config
+from twitterclient import TwitterClient
 
 
 class Tweet:
@@ -14,6 +15,7 @@ class Tweet:
         self.retweets = retweets
         self.likes = likes
         self._val = True
+        self._sentiment = None
 
     def __bool__(self):
         return self._val
@@ -74,6 +76,7 @@ class Tweet:
         self._fetch_date(scrap, False)
         self._fetch_username(scrap)
         self._fetch_tweet_id(scrap)
+        self._sentiment = TwitterClient().get_sentiment(TwitterClient().clean_tweet(self.text))
 
     def false_tweet(self):
         """Sets tweet object to false object"""
@@ -82,5 +85,3 @@ class Tweet:
     def set_internal_id(self, internal_id):
         """Sets internal id of tweet when gathered by db."""
         self.internal_id = internal_id
-
-
