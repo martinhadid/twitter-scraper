@@ -106,5 +106,3 @@ class Scraper:
         tweets += user_tweets
         tweets = self.filter_tweets(tweets)
         return tweets, users
-
-

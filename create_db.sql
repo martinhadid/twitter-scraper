@@ -33,7 +33,7 @@ CREATE TABLE HASHTAG (
 
 CREATE TABLE PRICE (
                     TIMESTAMP INT,
-                    PRICE INT,
+                    PRICE FLOAT,
                     PRIMARY KEY(TIMESTAMP)
                     );
 
