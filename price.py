@@ -38,7 +38,6 @@ class Price:
             bitcoindata = json.loads(r.text)
             self.value = bitcoindata['last']
             self.timestamp = bitcoindata['timestamp']
-            print(self.timestamp)
         except Exception as err:
             logger.error(err)
 
