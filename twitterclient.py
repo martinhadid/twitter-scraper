@@ -2,10 +2,12 @@ import tweepy
 from tweepy import OAuthHandler
 import config
 from user import User
-import logger
+from logger import Logger
+import re
+from textblob import TextBlob
 
 """global variable to log info and error to scraper_logs"""
-logger = logger.Logger()
+logger = Logger()
 
 
 class TwitterClient:
@@ -31,17 +33,16 @@ class TwitterClient:
             users_with_data = []
             for user in users:
                 user_data = self.api.get_user(id=user)
-                users_with_data.append(
-                    User(user, user_data.followers_count, user_data.friends_count, user_data.statuses_count))
+                users_with_data.append(User(user,
+                                            user_data.followers_count,
+                                            user_data.friends_count,
+                                            user_data.statuses_count))
+
             return users_with_data
 
         except tweepy.TweepError as err:
             logger.error('Error : ' + str(err))
 
-    # def translate_users(self, users):
-    #     new_users = []
-    #     for user in users:
-    #         new_users.append(User(user))
 
     def get_followers(self, account_name):
         """Return a list of all the followers of an account"""
@@ -72,16 +73,18 @@ class TwitterClient:
             all_data += users_list
         return all_data
 
+    def clean_tweet(self, tweet):
+        ''' Function to clean tweet text'''
+        return ' '.join(re.sub('(@[A-Za-z0-9]+)|([^0-9A-Za-z \t]) | (\w+:\ / \ / \S+)', ' ', tweet).split())
 
-def main():
-    tw = TwitterClient()
-    btc_f = tw.get_follower_ids('Bitcoin')
-    btc_f = tw.get_user_objects(btc_f)
-    print(len(btc_f))
+    def get_sentiment(self, tweet_text):
+        ''' Function to classify sentiment of the tweet '''
+        analysis = TextBlob(self.clean_tweet(tweet_text))
+        if analysis.sentiment.polarity > 0:
+            return 'positive'
+        elif analysis.sentiment.polarity == 0:
+            return 'neutral'
+        else:
+            return 'negative'
 
 
-
-
-
-if __name__ == '__main__':
-    main()

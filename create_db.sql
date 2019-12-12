@@ -21,6 +21,7 @@ CREATE TABLE TWEET (
                     RETWEETS INT,
                     LIKES INT,
                     LAST_UPD_DATE INT,
+                    SENTIMENT VARCHAR(10),
                     FOREIGN KEY (USER_CD) REFERENCES USER(USER_CD)
                     );
 
@@ -28,6 +29,12 @@ CREATE TABLE HASHTAG (
                     TWEET_ID INT,
                     HASHTAG VARCHAR(255),
                     FOREIGN KEY(TWEET_ID) REFERENCES TWEET(TWEET_ID)
+                    );
+
+CREATE TABLE PRICE (
+                    TIMESTAMP INT,
+                    PRICE INT,
+                    PRIMARY KEY(TIMESTAMP)
                     );
 
 CREATE TABLE TWEET_HIST (
