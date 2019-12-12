@@ -49,7 +49,7 @@ class TwitterClient:
 
     def get_sentiment(self, tweet_text):
         ''' Function to classify sentiment of the tweet '''
-        analysis = TextBlob(tweet_text)
+        analysis = TextBlob(self.clean_tweet(tweet_text))
         if analysis.sentiment.polarity > 0:
             return 'positive'
         elif analysis.sentiment.polarity == 0:

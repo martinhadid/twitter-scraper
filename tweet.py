@@ -76,7 +76,7 @@ class Tweet:
         self._fetch_date(scrap, False)
         self._fetch_username(scrap)
         self._fetch_tweet_id(scrap)
-        self._sentiment = TwitterClient().get_sentiment(TwitterClient().clean_tweet(self.text))
+        self._sentiment = TwitterClient().get_sentiment(self.text)
 
     def false_tweet(self):
         """Sets tweet object to false object"""

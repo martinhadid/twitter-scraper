@@ -26,7 +26,6 @@ def main_db(db_name, tweets, users):
     logger.info(str(updated_tweets) + ' tweets were updated.')
 
 
-
 def main():
     driver = Driver()
     cli = commandline.CommandLine()
