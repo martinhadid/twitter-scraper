@@ -2,7 +2,7 @@ from databasemanager import DatabaseManager
 from mysql import connector
 from logger import Logger
 import config
-import commandline
+from commandline import CommandLine
 from driver import Driver
 from scraper import Scraper
 from twitterclient import TwitterClient
@@ -31,14 +31,18 @@ def main_db(db_name, tweets, users, price):
 
 
 def main():
-    driver = Driver()
-    cli = commandline.CommandLine()
+
+    cli = CommandLine()
     url = cli.configure_search()
 
+    price = Price()
+    price.get_hist_price('2019-10-21', '2019-10-31')
+
+'''
+    driver = Driver()
     scraper = Scraper(driver, url)
     twitter_client = TwitterClient()
-    price = Price()
-    price.request_price()
+
 
     try:
         # First we scrape the site for TWEETS and USERS.
@@ -58,7 +62,7 @@ def main():
     except Exception:
         logger.error('Something went wrong!')
         driver.quit()
-
+'''
 
 if __name__ == '__main__':
     main()
