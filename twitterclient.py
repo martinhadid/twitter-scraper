@@ -37,48 +37,12 @@ class TwitterClient:
                                             user_data.followers_count,
                                             user_data.friends_count,
                                             user_data.statuses_count))
-<<<<<<< HEAD
 
-=======
->>>>>>> 1ad94115bb5fd5a0d59eae4a5b647f50a9e816a5
             return users_with_data
 
         except tweepy.TweepError as err:
             logger.error('Error : ' + str(err))
 
-<<<<<<< HEAD
-
-    def get_followers(self, account_name):
-        """Return a list of all the followers of an account"""
-        followers = []
-        for page in tweepy.Cursor(self.api.followers, screen_name=str(account_name)).pages():
-            followers.extend(page)
-            print(len(followers))
-        return followers
-
-    def get_follower_ids(self, target):
-        followers = []
-        for page in tweepy.Cursor(self.api.followers(target)).pages():
-            followers += page
-        return followers
-
-
-    # Twitter API allows us to batch query 100 accounts at a time
-    # So we'll create batches of 100 follower ids and gather Twitter User objects for each batch
-    def get_user_objects(self, follower_ids):
-        batch_len = 100
-        num_batches = len(follower_ids) / 100
-        batches = (follower_ids[i:i + batch_len] for i in range(0, len(follower_ids), batch_len))
-        all_data = []
-        for batch_count, batch in enumerate(batches):
-            print("\r")
-            print("Fetching batch: " + str(batch_count) + "/" + str(num_batches))
-            users_list = self.api.lookup_users(user_ids=batch)
-            all_data += users_list
-        return all_data
-
-=======
->>>>>>> 1ad94115bb5fd5a0d59eae4a5b647f50a9e816a5
     def clean_tweet(self, tweet):
         ''' Function to clean tweet text'''
         return ' '.join(re.sub('(@[A-Za-z0-9]+)|([^0-9A-Za-z \t]) | (\w+:\ / \ / \S+)', ' ', tweet).split())
@@ -92,8 +56,3 @@ class TwitterClient:
             return 'neutral'
         else:
             return 'negative'
-<<<<<<< HEAD
-
-
-=======
->>>>>>> 1ad94115bb5fd5a0d59eae4a5b647f50a9e816a5
