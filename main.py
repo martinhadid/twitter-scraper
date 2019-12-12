@@ -7,6 +7,8 @@ from driver import Driver
 from scraper import Scraper
 from twitterclient import TwitterClient
 from price import Price
+import ssl
+
 
 """global variable to log info and error to scraper_logs"""
 logger = Logger()
@@ -31,19 +33,18 @@ def main_db(db_name, tweets, users, price):
 
 
 def main():
-
     cli = CommandLine()
     url = cli.configure_search()
 
     price = Price()
+    # Avoid untrusted ssl certificates issues
+    ssl._create_default_https_context = ssl._create_unverified_context
+    price.request_price()
     price.get_hist_price(cli.get_start_date(), cli.get_end_date())
 
-
-'''
     driver = Driver()
     scraper = Scraper(driver, url)
     twitter_client = TwitterClient()
-
 
     try:
         # First we scrape the site for TWEETS and USERS.
@@ -63,7 +64,7 @@ def main():
     except Exception:
         logger.error('Something went wrong!')
         driver.quit()
-'''
+
 
 if __name__ == '__main__':
     main()
