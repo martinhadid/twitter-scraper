@@ -43,12 +43,8 @@ def coin_db(db_name, price, hist):
 
 
 def main_coin(cli):
-    print(cli.coin)
-    print(config.coin_tickers[cli.coin])
     coin = Coin(config.coin_tickers[cli.coin])
-    print(coin.ticker)
     current_price = coin.get_current_price()
-    print(current_price)
     hist_price = coin.get_hist_price(cli.get_start_date(), cli.get_end_date())
     return current_price, hist_price
 
