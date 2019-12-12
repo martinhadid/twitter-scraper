@@ -1,29 +1,33 @@
 from databasemanager import DatabaseManager
 from mysql import connector
-import logger
+from logger import Logger
 import config
 import commandline
 from driver import Driver
 from scraper import Scraper
 from twitterclient import TwitterClient
+from price import Price
 
 """global variable to log info and error to scraper_logs"""
-logger = logger.Logger()
+logger = Logger()
 
 
-def main_db(db_name, tweets, users):
-    """Create DB, use it and insert users and tweets"""
+def main_db(db_name, tweets, users, price):
+    """Create DB, use it and insert users, tweets and price"""
     with DatabaseManager(db_name) as db:
         db.use_db()
         new_users, updated_users = db.write_users(users)
         db.commit()
         new_tweets, updated_tweets = db.write_tweets(tweets)
         db.commit()
+        db.insert_price(price)
+        db.commit()
 
     logger.info(str(new_users) + ' new users were inserted in the database. ')
     logger.info(str(updated_users) + ' users were updated.')
     logger.info(str(new_tweets) + ' new tweets were inserted in the database. ')
     logger.info(str(updated_tweets) + ' tweets were updated.')
+    logger.info('Last price: ' + str(price.get_price()))
 
 
 def main():
@@ -33,6 +37,8 @@ def main():
 
     scraper = Scraper(driver, url)
     twitter_client = TwitterClient()
+    price = Price()
+    price.request_price()
 
     try:
         # First we scrape the site for TWEETS and USERS.
@@ -42,7 +48,7 @@ def main():
         # We complete these with the API
         users += twitter_client.get_users_missing_data(extra_usernames)
         # Save to DB
-        main_db(config.database_name, tweets, users)
+        main_db(config.database_name, tweets, users, price)
         driver.quit()
 
     except connector.errors.ProgrammingError:

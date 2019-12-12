@@ -3,12 +3,12 @@ from bs4 import BeautifulSoup
 from tweet import Tweet
 from user import User
 import config
-import logger
+from logger import Logger
 import traceback
 
 
 """global variable to log info and error to scraper_logs"""
-logger = logger.Logger()
+logger = Logger()
 
 
 class Scraper:

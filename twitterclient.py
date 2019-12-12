@@ -2,13 +2,12 @@ import tweepy
 from tweepy import OAuthHandler
 import config
 from user import User
-import logger
+from logger import Logger
 import re
 from textblob import TextBlob
-from databasemanager import DatabaseManager
 
 """global variable to log info and error to scraper_logs"""
-logger = logger.Logger()
+logger = Logger()
 
 
 class TwitterClient:

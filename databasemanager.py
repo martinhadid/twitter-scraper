@@ -126,6 +126,14 @@ class DatabaseManager:
             vals = (tweet_id, hashtag)
             self.cur.execute(query, vals)
 
+    def insert_price(self, price):
+        """Inserts bitcoin price into DB"""
+        timestamp = price.get_timestamp()
+        value = price.get_price()
+        query = '''INSERT INTO PRICE (TIMESTAMP, PRICE) VALUES (%s, %s)'''
+        vals = (timestamp, value)
+        self.cur.execute(query, vals)
+
     def commit(self):
         """Wrapping function to commit"""
         self.con.commit()
