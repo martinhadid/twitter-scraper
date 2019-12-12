@@ -5,6 +5,7 @@ import logger
 
 logger = logger.Logger()
 
+
 # TODO MOVE COMMIT INSIDE WRITE TWEETS/USERS AND LIMIT BY NUMBER OF TWEETS/USERS
 
 class DatabaseManager:
@@ -126,13 +127,24 @@ class DatabaseManager:
             vals = (tweet_id, hashtag)
             self.cur.execute(query, vals)
 
-    def insert_price(self, price):
+    def insert_price(self, price, timestamp):
         """Inserts bitcoin price into DB"""
-        timestamp = price.get_timestamp()
-        value = price.get_price()
         query = '''INSERT INTO PRICE (TIMESTAMP, PRICE) VALUES (%s, %s)'''
-        vals = (timestamp, value)
+        vals = (timestamp, price)
         self.cur.execute(query, vals)
+
+    def price_hist_exists(self):
+        """Checks if there is price history in the database"""
+        query = '''SELECT 1 FROM PRICE'''
+        self.cur.execute(query)
+        if not self.cur.rowcount:
+            return False
+        else:
+            return True
+
+    def write_price_hist(self, hist):
+        for date, price in hist:
+            self.insert_price(date, price)
 
     def commit(self):
         """Wrapping function to commit"""

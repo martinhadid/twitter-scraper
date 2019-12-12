@@ -25,35 +25,31 @@ def running_cum_return(returns, period_length):
     return running_returns
 
 
-class Price:
-    def __init__(self):
-        self.value = None
-        self.timestamp = None
+class Coin:
+    def __init__(self, ticker):
+        if 'USD' in ticker:
+            self.ticker = ticker
+        else:
+            self.ticker = ticker+'USD'
 
-    def request_price(self):
+    def get_current_price(self):
         """Function to get btc price"""
-        URL = 'https://www.bitstamp.net/api/ticker/'
+        URL = 'https://www.bitstamp.net/api/v2/ticker/' + self.ticker
         try:
             r = requests.get(URL)
-            bitcoindata = json.loads(r.text)
-            self.value = bitcoindata['last']
-            self.timestamp = bitcoindata['timestamp']
+            data = json.loads(r.text)
+            value = data['last']
+            timestamp = data['timestamp']
+            return value, timestamp
         except Exception as err:
             logger.error(err)
 
     def get_hist_price(self, start_date, end_date):
         """Function to get btc price between dates"""
-        fin = YahooFinancials('BTCUSD=X')
+        fin = YahooFinancials(self.ticker + '=X')
         prices = fin.get_historical_price_data(start_date, end_date, 'daily')
         price_per_day = {}
-
-        for value in prices['BTCUSD=X']['prices']:
+        for value in prices[self.ticker + '=X']['prices']:
             price_per_day[value['date']] = value['close']
-
         return price_per_day
 
-    def get_timestamp(self):
-        return self.timestamp
-
-    def get_price(self):
-        return self.value

@@ -6,7 +6,7 @@ from commandline import CommandLine
 from driver import Driver
 from scraper import Scraper
 from twitterclient import TwitterClient
-from price import Price
+from coin import Coin
 import ssl
 
 
@@ -35,12 +35,13 @@ def main_db(db_name, tweets, users, price):
 def main():
     cli = CommandLine()
     url = cli.configure_search()
-
-    price = Price()
+    price = Coin(config.coin_tickers[cli.coin])
     # Avoid untrusted ssl certificates issues
     ssl._create_default_https_context = ssl._create_unverified_context
-    price.request_price()
+    price.get_current_price()
     price.get_hist_price(cli.get_start_date(), cli.get_end_date())
+
+
 
     driver = Driver()
     scraper = Scraper(driver, url)

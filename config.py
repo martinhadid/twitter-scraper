@@ -33,4 +33,10 @@ API = {
     'access_token_secret': 'JXQcqSP15ihwjYDzyub9sWJFRwIjuUolhlSOlj5IlhjkP'
 }
 
+coin_tickers = {
+    'bitcoin':'BTC',
+    'ethereum':'ETH',
+    'litecoin':'LTC'
+}
+
 database_name = 'twitter'
