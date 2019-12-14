@@ -29,15 +29,15 @@ def main_db(db_name, tweets, users):
     # logger.info('Last price: ' + str(price.get_price()))
 
 
-def coin_db(db_name, price, hist):
+def coin_db(db_name, coin, price, hist):
     """Create DB, use it and insert users, tweets and price"""
     with DatabaseManager(db_name) as db:
         db.use_db()
-        if db.price_hist_exists():
-            db.insert_price(price[0], price[1])
+        if db.price_hist_exists(coin.ticker):
+            db.insert_price(coin.ticker, price[0], price[1])
             db.commit()
         else:
-            db.write_price_hist(hist)
+            db.write_price_hist(coin.ticker, hist)
             db.commit()
 
     logger.info('Last price: ' + str(price[0]))
@@ -47,7 +47,7 @@ def main_coin(cli):
     coin = Coin(config.coin_tickers[cli.coin])
     current_price = coin.get_current_price()
     hist_price = coin.get_hist_price(cli.get_start_date(), cli.get_end_date())
-    return current_price, hist_price
+    return coin, current_price, hist_price
 
 
 def main():
@@ -56,8 +56,8 @@ def main():
     # Avoid untrusted ssl certificates issues
     ssl._create_default_https_context = ssl._create_unverified_context
 
-    current_price, hist = main_coin(cli)
-    coin_db(config.database_name, current_price, hist)
+    coin, current_price, hist = main_coin(cli)
+    coin_db(config.database_name, coin, current_price, hist)
 
     driver = Driver()
     scraper = Scraper(driver, url)

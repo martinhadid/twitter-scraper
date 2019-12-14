@@ -127,24 +127,25 @@ class DatabaseManager:
             vals = (tweet_id, hashtag)
             self.cur.execute(query, vals)
 
-    def insert_price(self, price, timestamp):
+    def insert_price(self, ticker, price, timestamp):
         """Inserts bitcoin price into DB"""
-        query = '''INSERT INTO PRICE (TIMESTAMP, PRICE) VALUES (%s, %s)'''
-        vals = (timestamp, price)
+        query = '''INSERT INTO PRICE (TICKER, TIMESTAMP, PRICE) VALUES (%s, %s, %s)'''
+        vals = (ticker, timestamp, price)
         self.cur.execute(query, vals)
 
-    def price_hist_exists(self):
+    def price_hist_exists(self, ticker):
         """Checks if there is price history in the database"""
-        query = '''SELECT 1 FROM PRICE'''
-        self.cur.execute(query)
+        query = '''SELECT 1 FROM PRICE WHERE TICKER = %s'''
+        vals = (ticker,)
+        self.cur.execute(query, vals)
         if not self.cur.rowcount:
             return False
         else:
             return True
 
-    def write_price_hist(self, hist):
+    def write_price_hist(self, ticker, hist):
         for date, price in hist.items():
-            self.insert_price(price, date)
+            self.insert_price(ticker, price, date)
 
     def commit(self):
         """Wrapping function to commit"""

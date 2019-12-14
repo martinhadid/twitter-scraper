@@ -32,9 +32,10 @@ CREATE TABLE HASHTAG (
                     );
 
 CREATE TABLE PRICE (
+                    TICKER VARCHAR(40),
                     TIMESTAMP INT,
                     PRICE FLOAT,
-                    PRIMARY KEY(TIMESTAMP)
+                    PRIMARY KEY(TICKER, TIMESTAMP)
                     );
 
 CREATE TABLE TWEET_HIST (

@@ -14,7 +14,7 @@ class CommandLine:
     def get_argparser(self):
         """Command line interface configuration handler"""
         parser = argparse.ArgumentParser(description='Command Configuration')
-        parser.add_argument('--coin', choices=['bitcoin', 'ethereal', 'litecoin'], default='bitcoin')
+        parser.add_argument('--coin', choices=['bitcoin', 'ethereum', 'litecoin'], default='bitcoin')
         parser.add_argument('--start_date', default='2019-10-21')
         parser.add_argument('--end_date', default='2019-10-31')
         parser.add_argument('--language', choices=['en', 'it', 'es', 'fr', 'de', 'ru', 'zh'], default='en')
