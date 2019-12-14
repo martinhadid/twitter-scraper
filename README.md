@@ -21,7 +21,7 @@ After the HTML is retrieved the parser will get each tweet's information includi
 - tweet text
 - username
 - hashtags
-- date \
+- date  
 And some statistics as:
 - likes
 - replies
