@@ -23,7 +23,7 @@ class TwitterClient:
             '''API Authentication'''
             self.auth = OAuthHandler(self._consumer_key, self._consumer_secret)
             self.auth.set_access_token(self._access_token, self._access_token_secret)
-            self.api = tweepy.API(self.auth, wait_on_rate_limit=False)
+            self.api = tweepy.API(self.auth, wait_on_rate_limit=(not config.test_mode))
         except Exception:
             logger.error('Authentication Failed')
 

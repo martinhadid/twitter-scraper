@@ -15,7 +15,7 @@ def calc_returns(prices):
     return returns
 
 
-def running_cum_return(returns, period_length):
+def get_cumulative_returns(returns, period_length):
     running_returns = []
     for i in range(len(returns) - period_length):
         running_return = 1

@@ -72,7 +72,6 @@ def main():
         users += twitter_client.get_users_missing_data(extra_usernames)
         # Save to DB
         main_db(config.database_name, tweets, users)
-        driver.quit()
 
     except connector.errors.ProgrammingError:
         logger.error('DB doesn\'t exists, please run create_db.sql')
@@ -80,7 +79,8 @@ def main():
         logger.error('Can\'t connect to server')
     except Exception:
         logger.error('Something went wrong!')
-        driver.quit()
+
+    driver.quit()
 
 
 if __name__ == '__main__':

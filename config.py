@@ -1,4 +1,4 @@
-test_mode = True
+test_mode = False
 
 scraper = {
     'csv_headers': ['tweet_id', 'date', 'username', 'tweets', 'hashtags', 'replies', 'retweets', 'likes'],
