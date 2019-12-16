@@ -31,6 +31,7 @@ The driver will navigate to each users homepage and scrape the following data:
 - following
 - total tweets
 - most recent tweets
+
 With all these information we perform sentiment analysis based on users reactions.
 
 The software keeps historical prices from BitStamp and YahooFinance APIs.
