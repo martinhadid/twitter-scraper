@@ -34,7 +34,7 @@ The driver will navigate to each users homepage and scrape the following data:
 
 With all these information we perform sentiment analysis based on users reactions.
 
-The software keeps historical prices from BitStamp and YahooFinance APIs.
+The software keeps track historical prices from BitStamp and YahooFinance APIs.
 
 All these information will be saved in a MySQL database defined in create_db.sql (which should be previously run). Please configure the database server in the config.py file.
 Upon re-scraping Twitter if the scraper finds a previously scraped tweet or user it will update the statistics and save a snapshot of the previous statistics.
