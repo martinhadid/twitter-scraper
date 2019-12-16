@@ -30,11 +30,10 @@ def get_cumulative_returns(returns, period_length):
 
 class Coin:
     def __init__(self, ticker):
-        if 'USD' in ticker:
-            self.ticker = ticker
-        else:
-            self.ticker = ticker + 'USD'
-        self.get_current_price()
+        self.ticker = ticker
+        self.current_price = None
+        self.current_datetime = None
+        self.hist = None
 
     def get_current_price(self):
         """Function to get btc price"""
@@ -49,7 +48,7 @@ class Coin:
         except Exception as err:
             logger.error(err)
 
-    def get_hist_price(self, start_date, end_date):
+    def set_hist_price(self, start_date, end_date):
         """Function to get btc price between dates"""
         fin = YahooFinancials(self.ticker + '=X')
         prices = fin.get_historical_price_data(start_date, end_date, 'daily')

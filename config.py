@@ -39,9 +39,9 @@ coin = {
 }
 
 coin_tickers = {
-    'bitcoin': 'BTC',
-    'ethereum': 'ETH',
-    'litecoin': 'LTC'
+    'bitcoin': 'BTCUSD',
+    'ethereum': 'ETHUSD',
+    'litecoin': 'LTCUSD'
 }
 
 database_name = 'twitter'
