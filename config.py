@@ -1,4 +1,4 @@
-test_mode = False
+test_mode = True
 
 scraper = {
     'csv_headers': ['tweet_id', 'date', 'username', 'tweets', 'hashtags', 'replies', 'retweets', 'likes'],
@@ -31,6 +31,10 @@ API = {
     'consumer_secret': '5Yb6v2v4Y4zulq8fXL5iRuuTK4G0df48AoQI36B7XTm0cw1sIT',
     'access_token': '1204735114581827585-OLFpb3m4IHKmRlZ0kQM1j5LMRhNCyB',
     'access_token_secret': 'JXQcqSP15ihwjYDzyub9sWJFRwIjuUolhlSOlj5IlhjkP'
+}
+
+coin = {
+    'price_hist_url':'https://www.bitstamp.net/api/v2/ticker/'
 }
 
 coin_tickers = {

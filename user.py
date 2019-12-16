@@ -11,6 +11,12 @@ class User:
         else:
             return False
 
+    def __bool__(self):
+        if self.followers is None and self.following is None and self.total_tweets is None:
+            return False
+        else:
+            return True
+
     def _fetch_stats(self, scrap):
         """Fetches user stats and adds these to user object."""
         all_stats = scrap.find_all('a', class_='ProfileNav-stat')

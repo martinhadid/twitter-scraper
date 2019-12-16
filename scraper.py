@@ -100,6 +100,7 @@ class Scraper:
         return users, user_tweets
 
     def scrape(self):
+        """Function that combines all scrape methods"""
         tweets = self.scrape_tweets(self.get_tweets(self.get_html()))
         usernames = self.get_usernames(tweets)
         users, user_tweets = self.scrape_all_users(usernames)

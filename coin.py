@@ -1,5 +1,6 @@
 import requests
 import json
+import config
 from logger import Logger
 from yahoofinancials import YahooFinancials
 
@@ -8,6 +9,7 @@ logger = Logger()
 
 
 def calc_returns(prices):
+    """Given prices, calculates returns"""
     returns = []
     for i in range(len(prices) - 1):
         ret = (prices[i + 1] - prices[i]) / prices[i]
@@ -16,6 +18,7 @@ def calc_returns(prices):
 
 
 def get_cumulative_returns(returns, period_length):
+    """Given price returns, calculates cumulative returns for analysis"""
     running_returns = []
     for i in range(len(returns) - period_length):
         running_return = 1
@@ -30,17 +33,19 @@ class Coin:
         if 'USD' in ticker:
             self.ticker = ticker
         else:
-            self.ticker = ticker+'USD'
+            self.ticker = ticker + 'USD'
+        self.get_current_price()
 
     def get_current_price(self):
         """Function to get btc price"""
-        URL = 'https://www.bitstamp.net/api/v2/ticker/' + self.ticker.lower()
+        URL = config.coin['price_hist_url'] + self.ticker.lower()
         try:
             r = requests.get(URL)
             data = json.loads(r.text)
             value = data['last']
             timestamp = data['timestamp']
-            return value, timestamp
+            self.current_price = value
+            self.current_datetime = timestamp
         except Exception as err:
             logger.error(err)
 
@@ -51,6 +56,4 @@ class Coin:
         price_per_day = {}
         for value in prices[self.ticker + '=X']['prices']:
             price_per_day[value['date']] = value['close']
-        return price_per_day
-
-
+        self.hist = price_per_day

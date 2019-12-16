@@ -8,19 +8,18 @@ from scraper import Scraper
 from twitterclient import TwitterClient
 from coin import Coin
 import ssl
+import tweepy
 
 """global variable to log info and error to scraper_logs"""
 logger = Logger()
 
 
 def main_db(db_name, tweets, users):
-    """Create DB, use it and insert users, tweets and price"""
+    """Connect to DB, use it and insert users and tweets"""
     with DatabaseManager(db_name) as db:
         db.use_db()
         new_users, updated_users = db.write_users(users)
-        db.commit()
         new_tweets, updated_tweets = db.write_tweets(tweets)
-        db.commit()
 
     logger.info(str(new_users) + ' new users were inserted in the database. ')
     logger.info(str(updated_users) + ' users were updated.')
@@ -29,35 +28,36 @@ def main_db(db_name, tweets, users):
     # logger.info('Last price: ' + str(price.get_price()))
 
 
-def coin_db(db_name, coin, price, hist):
-    """Create DB, use it and insert users, tweets and price"""
+def coin_db(db_name, coin):
+    """Connect to DB, use it and insert prices"""
     with DatabaseManager(db_name) as db:
         db.use_db()
-        if db.price_hist_exists(coin.ticker):
-            db.insert_price(coin.ticker, price[0], price[1])
+        if db.price_hist_exists(coin):
+            db.insert_price(coin)
             db.commit()
         else:
-            db.write_price_hist(coin.ticker, hist)
+            db.write_price_hist(coin)
             db.commit()
 
-    logger.info('Last price: ' + str(price[0]))
+    logger.info('Last price: ' + str(coin.current_price))
 
 
 def main_coin(cli):
+    """Generate coin instance"""
     coin = Coin(config.coin_tickers[cli.coin])
-    current_price = coin.get_current_price()
-    hist_price = coin.get_hist_price(cli.get_start_date(), cli.get_end_date())
-    return coin, current_price, hist_price
+    coin.get_hist_price(cli.get_start_date(), cli.get_end_date())
+    return coin
 
 
 def main():
     cli = CommandLine()
     url = cli.configure_search()
+
     # Avoid untrusted ssl certificates issues
     ssl._create_default_https_context = ssl._create_unverified_context
 
-    coin, current_price, hist = main_coin(cli)
-    coin_db(config.database_name, coin, current_price, hist)
+    coin = main_coin(cli)
+    coin_db(config.database_name, coin)
 
     driver = Driver()
     scraper = Scraper(driver, url)
@@ -77,6 +77,8 @@ def main():
         logger.error('DB doesn\'t exists, please run create_db.sql')
     except connector.errors.DatabaseError:
         logger.error('Can\'t connect to server')
+    except tweepy.error.RateLimitError:
+        logger.error('Twitter API rate limit exceeded.')
     except Exception:
         logger.error('Something went wrong!')
 

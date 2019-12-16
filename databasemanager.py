@@ -6,8 +6,6 @@ import logger
 logger = logger.Logger()
 
 
-# TODO MOVE COMMIT INSIDE WRITE TWEETS/USERS AND LIMIT BY NUMBER OF TWEETS/USERS
-
 class DatabaseManager:
     def __init__(self, database=None):
         """Initialize db instance"""
@@ -127,25 +125,29 @@ class DatabaseManager:
             vals = (tweet_id, hashtag)
             self.cur.execute(query, vals)
 
-    def insert_price(self, ticker, price, timestamp):
+    def insert_price(self, coin, price=0, date=0):
         """Inserts bitcoin price into DB"""
+        if price == 0:
+            price = coin.current_price
+        if date == 0:
+            date = coin.current_datetime
         query = '''INSERT INTO PRICE (TICKER, TIMESTAMP, PRICE) VALUES (%s, %s, %s)'''
-        vals = (ticker, timestamp, price)
+        vals = (coin.ticker, date, price)
         self.cur.execute(query, vals)
 
-    def price_hist_exists(self, ticker):
+    def price_hist_exists(self, coin):
         """Checks if there is price history in the database"""
         query = '''SELECT 1 FROM PRICE WHERE TICKER = %s'''
-        vals = (ticker,)
+        vals = (coin.ticker,)
         self.cur.execute(query, vals)
         if not self.cur.rowcount:
             return False
         else:
             return True
 
-    def write_price_hist(self, ticker, hist):
-        for date, price in hist.items():
-            self.insert_price(ticker, price, date)
+    def write_price_hist(self, coin):
+        for date, price in coin.hist.items():
+            self.insert_price(coin, price, date)
 
     def commit(self):
         """Wrapping function to commit"""
@@ -160,10 +162,13 @@ class DatabaseManager:
             if not self.user_exists(user):
                 self.insert_user(user)
                 new += 1
-            elif user.followers is not None:
+            elif user:
                 self.write_user_hist(user)
                 self.update_user(user)
                 updated += 1
+            if (updated + new) % 500 == 0:
+                self.commit()
+        self.commit()
         return new, updated
 
     def write_tweets(self, tweets):
@@ -181,4 +186,7 @@ class DatabaseManager:
                 self.write_tweet_hist(tweet)
                 self.update_tweet(tweet)
                 updated += 1
+            if (updated + new) % 500 == 0:
+                self.commit()
+        self.commit()
         return new, updated
