@@ -30,9 +30,3 @@ class CommandLine:
         url += 'l={}&'.format(self.language)
         url += 'src=typd'
         return url
-
-    def get_start_date(self):
-        return self.start_date
-
-    def get_end_date(self):
-        return self.end_date

@@ -25,7 +25,6 @@ def main_db(db_name, tweets, users):
     logger.info(str(updated_users) + ' users were updated.')
     logger.info(str(new_tweets) + ' new tweets were inserted in the database. ')
     logger.info(str(updated_tweets) + ' tweets were updated.')
-    # logger.info('Last price: ' + str(price.get_price()))
 
 
 def coin_db(db_name, coin):
@@ -45,7 +44,7 @@ def coin_db(db_name, coin):
 def main_coin(cli):
     """Generate coin instance"""
     coin = Coin(config.coin_tickers[cli.coin])
-    coin.get_hist_price(cli.get_start_date(), cli.get_end_date())
+    coin.get_hist_price(cli.start_date, cli.end_date)
     return coin
 
 
