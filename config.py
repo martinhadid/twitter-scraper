@@ -20,11 +20,12 @@ tweet = {
     'likes': 2
 }
 
-mysql = {'user': 'twitter',
-         'password': 'twittertwitter',
-         'host': '127.0.0.1',
-         'port': 3306
-         }
+mysql = {
+    'user': 'twitter',
+    'password': 'twittertwitter',
+    'host': '127.0.0.1',
+    'port': 3306
+}
 
 API = {
     'consumer_key': 'dYgo8B2sDLruMrVXR0Kd7Tp5N',
@@ -34,13 +35,13 @@ API = {
 }
 
 coin = {
-    'price_hist_url':'https://www.bitstamp.net/api/v2/ticker/'
+    'price_hist_url': 'https://www.bitstamp.net/api/v2/ticker/'
 }
 
 coin_tickers = {
-    'bitcoin':'BTC',
-    'ethereum':'ETH',
-    'litecoin':'LTC'
+    'bitcoin': 'BTC',
+    'ethereum': 'ETH',
+    'litecoin': 'LTC'
 }
 
 database_name = 'twitter'
