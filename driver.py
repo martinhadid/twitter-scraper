@@ -2,11 +2,16 @@ from selenium import webdriver
 import os
 import time
 import config
+from selenium.webdriver.chrome.options import Options
 
 
 class Driver:
     def __init__(self):
-        self.driver = webdriver.Chrome(os.path.join(os.path.dirname(__file__), config.driver))
+        chrome_options = Options()
+        chrome_options.add_argument('--headless')
+        chrome_options.add_argument('--no-sandbox')
+        chrome_options.add_argument('--disable-dev-shm-usage')
+        self.driver = webdriver.Chrome(os.path.join(os.path.dirname(__file__), config.driver), chrome_options=chrome_options)
 
     def scroll(self, url, max_time):
         """Scroll down the browser for the requested time"""
