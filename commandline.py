@@ -9,7 +9,6 @@ class CommandLine:
         self.start_date = self.argparser['start_date']
         self.end_date = self.argparser['end_date']
         self.language = self.argparser['language']
-        self.configure_search()
 
     def get_argparser(self):
         """Command line interface configuration handler"""
@@ -22,11 +21,3 @@ class CommandLine:
         argparser = parser.parse_args()
         return argparser.__dict__
 
-    def configure_search(self):
-        """Prepares the Url to be requested"""
-        url = config.scraper['twitter_search_url']
-        url += '%23{}%20'.format(self.coin)
-        url += 'since%3A{}%20until%3A{}&'.format(self.start_date, self.end_date)
-        url += 'l={}&'.format(self.language)
-        url += 'src=typd'
-        return url
