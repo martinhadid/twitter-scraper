@@ -81,6 +81,8 @@ def main():
     coin = main_coin(cli)
     coin_db(config.database_name, coin)
 
+    ssl._create_default_https_context = ssl._create_unverified_context
+
     for i in range(len(date_range) - 1):
 
         # Avoid untrusted ssl certificates issues
@@ -89,7 +91,7 @@ def main():
 
         print('Scraping from ', date_range[i], 'to', date_range[i + 1])
 
-        ssl._create_default_https_context = ssl._create_unverified_context
+
 
         driver = Driver()
         scraper = Scraper(driver, url)
