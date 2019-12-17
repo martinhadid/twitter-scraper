@@ -105,5 +105,4 @@ venv.bak/
 /chromedriver.exe
 /twitterData.csv
 /tweets.db
-/chromedriver
 .idea/
