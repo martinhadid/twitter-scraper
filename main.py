@@ -15,6 +15,9 @@ from datetime import timedelta
 """global variable to log info and error to scraper_logs"""
 logger = Logger()
 
+# Avoid untrusted ssl certificates issues
+ssl._create_default_https_context = ssl._create_unverified_context
+
 
 def configure_search(cli, start_date, end_date):
     """Prepares the Url to be requested"""
@@ -81,17 +84,11 @@ def main():
     coin = main_coin(cli)
     coin_db(config.database_name, coin)
 
-    ssl._create_default_https_context = ssl._create_unverified_context
-
     for i in range(len(date_range) - 1):
-
-        # Avoid untrusted ssl certificates issues
 
         url = configure_search(cli, date_range[i], date_range[i + 1])
 
         print('Scraping from ', date_range[i], 'to', date_range[i + 1])
-
-
 
         driver = Driver()
         scraper = Scraper(driver, url)
