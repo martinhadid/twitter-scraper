@@ -49,9 +49,9 @@ def main_db(db_name, tweets, users, start_date):
         new_tweets, updated_tweets = db.write_tweets(tweets)
 
     logger.info(str(new_users) + ' new users were inserted in the database. For date: '+ start_date)
-    logger.info(str(updated_users) + ' users were updated.')
-    logger.info(str(new_tweets) + ' new tweets were inserted in the database. ')
-    logger.info(str(updated_tweets) + ' tweets were updated.')
+    logger.info(str(updated_users) + ' users were updated. For date: '+ start_date)
+    logger.info(str(new_tweets) + ' new tweets were inserted in the database. For date: '+ start_date)
+    logger.info(str(updated_tweets) + ' tweets were updated. For date: '+ start_date)
 
 
 def coin_db(db_name, coin):
