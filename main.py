@@ -38,7 +38,6 @@ def get_date_range(cli):
         dates.append(date)
         my_date = datetime.strptime(date, "%Y-%m-%d")
         date = (my_date + timedelta(days=1)).strftime("%Y-%m-%d")
-        print(date)
     return dates
 
 
@@ -89,7 +88,7 @@ def main():
 
         url = configure_search(cli, date_range[i], date_range[i + 1])
 
-        print('Scraping from ', date_range[i], 'to', date_range[i + 1])
+        logger.info('Scraping from ', date_range[i], 'to', date_range[i + 1])
 
         driver = Driver()
         scraper = Scraper(driver, url)
