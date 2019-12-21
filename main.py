@@ -11,6 +11,7 @@ import ssl
 import tweepy
 from datetime import datetime
 from datetime import timedelta
+import traceback
 
 """global variable to log info and error to scraper_logs"""
 logger = Logger()
@@ -111,7 +112,7 @@ def main():
         except tweepy.error.RateLimitError:
             logger.error('Twitter API rate limit exceeded.')
         except Exception:
-            logger.error('Something went wrong!')
+            logger.error('Something went wrong!' + traceback.format_exc())
 
         driver.quit()
 
