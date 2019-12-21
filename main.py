@@ -88,7 +88,7 @@ def main():
 
         url = configure_search(cli, date_range[i], date_range[i + 1])
 
-        logger.info('Scraping from ', date_range[i], 'to', date_range[i + 1])
+        logger.info('Scraping from ' + str(date_range[i]) +  'to' +str(date_range[i + 1]))
 
         driver = Driver()
         scraper = Scraper(driver, url)
