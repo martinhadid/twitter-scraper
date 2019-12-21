@@ -41,14 +41,14 @@ def get_date_range(cli):
     return dates
 
 
-def main_db(db_name, tweets, users):
+def main_db(db_name, tweets, users, start_date):
     """Connect to DB, use it and insert users and tweets"""
     with DatabaseManager(db_name) as db:
         db.use_db()
         new_users, updated_users = db.write_users(users)
         new_tweets, updated_tweets = db.write_tweets(tweets)
 
-    logger.info(str(new_users) + ' new users were inserted in the database. ')
+    logger.info(str(new_users) + ' new users were inserted in the database. For date: '+ start_date)
     logger.info(str(updated_users) + ' users were updated.')
     logger.info(str(new_tweets) + ' new tweets were inserted in the database. ')
     logger.info(str(updated_tweets) + ' tweets were updated.')
@@ -102,7 +102,7 @@ def main():
             # We complete these with the API
             users += twitter_client.get_users_missing_data(extra_usernames)
             # Save to DB
-            main_db(config.database_name, tweets, users)
+            main_db(config.database_name, tweets, users, date_range[i])
 
         except connector.errors.ProgrammingError:
             logger.error('DB doesn\'t exists, please run create_db.sql')
