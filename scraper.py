@@ -96,7 +96,6 @@ class Scraper:
             else:
                 users.append(User(username))
             i += 1
-            print('At user', i, 'out of', len(usernames))
         return users, user_tweets
 
     def scrape(self):
