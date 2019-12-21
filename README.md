@@ -15,18 +15,23 @@ To scrape twitter you will have to run python scraper.py defining the following 
 
 Once you have defined your arguments the scraper will build the URL and open a chrome browser for the requested page.
 The driver will scroll down for the specified duration and will collect all the tweets' information extracted from the HTML using BeautifulSoup.
+
 After the HTML is retrieved the parser will get each tweet's information including:
 - tweet ID
 - tweet text
 - username
 - hashtags
-- date  
-Also some statistics as:
+- date
+
+Also some statistics as:  
+
 - likes
 - replies
 - retweets
+
 Having collected all the tweets the scraper will identified all users in the previous tweets and proceed to scrape them.
 The driver will navigate to each users homepage and scrape the following data:
+
 - followers
 - following
 - total tweets
